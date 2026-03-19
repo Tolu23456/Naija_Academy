@@ -1,0 +1,51 @@
+<!-- Maths: Statistics -->
+<div class="lesson-container">
+    <h1 class="text-accent mb-1" style="font-size: 3rem;">Statistics & Probability Course</h1>
+    <p class="mb-2 text-secondary" style="font-size: 1.2rem;">Data collection matrices, variance calculation, and independent events.</p>
+    
+    <div class="glass-card padding-2 mb-2">
+        <h2 class="mb-1 text-success">1. Measures of Central Tendency</h2>
+        <p>The statistical attempts to find the "center" or typical value of a dataset.</p>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; text-align: left;" class="bg-dark rounded">
+            <tr>
+                <th style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);">Measure</th>
+                <th style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);">Formula/Definition</th>
+            </tr>
+            <tr>
+                <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);"><strong>Mean</strong></td>
+                <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);"><code>&Sigma;fx / &Sigma;f</code> (Sum of all values divided by count)</td>
+            </tr>
+            <tr>
+                <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);"><strong>Median</strong></td>
+                <td style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);">The middle value when sorted. If even array, average of the two middle elements.</td>
+            </tr>
+            <tr>
+                <td style="padding: 1rem;"><strong>Mode</strong></td>
+                <td style="padding: 1rem;">Value with the highest frequency. Bimodal implies two modes.</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="glass-card padding-2 mb-2">
+        <h2 class="mb-1 text-warning">2. Measures of Dispersion</h2>
+        <p>How spread out the data is relative to the mean.</p>
+        <ul style="list-style: inside; line-height: 1.8; margin-top: 1rem;">
+            <li><strong>Range</strong>: Highest value minus Lowest value.</li>
+            <li><strong>Variance (&sigma;&sup2;)</strong>: The average of the squared differences from the Mean.</li>
+            <li><strong>Standard Deviation (&sigma;)</strong>: The square root of the variance. This guarantees the dispersion is in the same unit as the original data array!</li>
+        </ul>
+    </div>
+
+    <div class="glass-card padding-2 mb-2">
+        <h2 class="mb-1 text-accent">3. Probability Theory</h2>
+        <p>Probability ranges strictly from <code>0</code> (impossible) to <code>1</code> (certain).</p>
+        <div class="mt-1">
+            <h4>Mutually Exclusive Events:</h4>
+            <p>Cannot happen at the same time (e.g., rolling a 1 and rolling a 6 on one die). Use the <strong>Addition Law</strong>: <code>P(A OR B) = P(A) + P(B)</code></p>
+        </div>
+        <div class="mt-1">
+            <h4>Independent Events:</h4>
+            <p>Outcome of one doesn't affect the other (e.g., flipping a coin, then rolling a die). Use the <strong>Multiplication Law</strong>: <code>P(A AND B) = P(A) &times; P(B)</code></p>
+        </div>
+    </div>
+</div>

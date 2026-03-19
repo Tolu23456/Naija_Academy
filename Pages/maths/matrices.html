@@ -1,0 +1,30 @@
+<!-- Maths: Matrices -->
+<div class="lesson-container">
+    <h1 class="text-accent mb-1" style="font-size: 3rem;">Matrices & Determinants</h1>
+    <p class="mb-2 text-secondary" style="font-size: 1.2rem;">Array operations and solving simultaneous equations.</p>
+    
+    <div class="glass-card padding-2 mb-2">
+        <h2 class="mb-1 text-success">1. Matrix Operations</h2>
+        <ul style="list-style: inside; line-height: 1.8;">
+            <li><strong>Addition/Subtraction:</strong> Matrices MUST have the exact same dimensions to be added or subtracted. Add corresponding elements.</li>
+            <li><strong>Scalar Multiplication:</strong> Multiply every single element in the matrix by the scalar number.</li>
+            <li><strong>Matrix Multiplication:</strong> The number of columns in the first matrix must equal the number of rows in the second matrix. (Row by Column multiplication).</li>
+        </ul>
+    </div>
+
+    <div class="glass-card padding-2 mb-2 text-center" style="border-top: 4px solid var(--warning);">
+        <h2 class="mb-1 text-accent">2. Determinant of a 2x2 Matrix</h2>
+        <p>For a matrix A containing elements: [a, b] top row, [c, d] bottom row.</p>
+        <div class="interactive-formula bg-dark padding-1 rounded mt-1" style="font-size: 1.5rem; display: inline-block;">
+            <code>|A| = ad - bc</code>
+        </div>
+        <p class="mt-1 text-muted text-left">A matrix with a determinant of zero is called a <strong>Singular Matrix</strong>. It has no inverse!</p>
+    </div>
+
+    <div class="glass-card padding-2 mb-2">
+        <h2 class="mb-1 text-accent">3. Inverse of a Matrix</h2>
+        <p>The inverse A&macr;&sup1; multiplied by the original matrix A equals the Identity Matrix (I).</p>
+        <p class="mt-1"><code>A&macr;&sup1; = (1 / |A|) &times; Adjugate(A)</code></p>
+        <p class="text-muted mt-1">For a 2x2 matrix, to find the adjugate: Swap the positions of <em>a</em> and <em>d</em>, and negate the signs of <em>b</em> and <em>c</em>.</p>
+    </div>
+</div>

@@ -1,0 +1,54 @@
+<!-- Maths: Algebra -->
+<div class="lesson-container">
+    <h1 class="text-accent mb-1" style="font-size: 3rem;">Algebra Intensive Course</h1>
+    <p class="mb-2 text-secondary" style="font-size: 1.2rem;">Master linear equations, quadratic formulas, polynomials, and inequalities.</p>
+    
+    <div class="glass-card padding-2 mb-2">
+        <h2 class="mb-1 text-success">1. Linear Equations</h2>
+        <p>Linear equations form the foundation of Algebra. They are mathematical statements asserting the equality of two expressions that have a maximum degree of 1.</p>
+        <p class="mt-1"><strong>Example:</strong> Solve for <i>x</i> in <code>3x - 5 = 16</code></p>
+        <div class="bg-dark padding-1 rounded mt-1" style="font-family: monospace;">
+            Step 1: 3x = 16 + 5<br>
+            Step 2: 3x = 21<br>
+            Step 3: x = 21 / 3<br>
+            <strong>x = 7</strong>
+        </div>
+    </div>
+
+    <div class="glass-card padding-2 mb-2">
+        <h2 class="mb-1 text-warning">2. Quadratic Equations</h2>
+        <p>A quadratic equation is a second-order polynomial equation in a single variable <i>x</i>, with a non-zero leading coefficient.</p>
+        <div class="interactive-formula bg-dark padding-1 rounded mt-1 text-center" style="font-size: 1.5rem;">
+            <code>ax&sup2; + bx + c = 0</code>
+        </div>
+        
+        <h3 class="mt-2 mb-1">Solving by Factoring</h3>
+        <p>Find two numbers that multiply to <i>c</i> and add up to <i>b</i>.</p>
+        <p><strong>Example:</strong> <code>x&sup2; + 5x + 6 = 0</code> factors into <code>(x+2)(x+3) = 0</code>, meaning <strong>x = -2 or x = -3</strong>.</p>
+        
+        <h3 class="mt-2 mb-1">The Quadratic Formula</h3>
+        <div class="interactive-formula bg-dark padding-1 rounded mt-1 text-center" style="font-size: 1.5rem;">
+            <code>x = [-b &plusmn; &radic;(b&sup2; - 4ac)] / 2a</code>
+        </div>
+    </div>
+
+    <div class="glass-card padding-2 mb-2">
+        <h2 class="mb-1 text-accent">3. Inequalities</h2>
+        <p>Inequalities show the relationship between two non-equal expressions. The crucial rule is: <strong>When you multiply or divide an inequality by a negative number, you must flip the inequality sign!</strong></p>
+        <div class="bg-dark padding-1 rounded mt-1" style="font-family: monospace;">
+            -2x > 10<br>
+            x < 10 / -2<br>
+            <strong>x < -5</strong>
+        </div>
+    </div>
+    
+    <div class="glass-card padding-2 mb-2" style="border-top: 4px solid var(--accent-primary);">
+        <h2>Mini Quiz: Algebra</h2>
+        <p class="mt-1">What are the roots of <code>x&sup2; - 4 = 0</code>?</p>
+        <div class="mt-1" style="display: flex; gap: 1rem;">
+            <button class="btn btn-outline">x = 4</button>
+            <button class="btn btn-outline" onclick="this.style.backgroundColor='var(--success)'; this.style.color='white';">x = &plusmn;2</button>
+            <button class="btn btn-outline">x = -4</button>
+        </div>
+    </div>
+</div>

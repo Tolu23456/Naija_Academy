@@ -1,0 +1,34 @@
+<section class="view active cbt-interface">
+    <div class="view-header" style="display:flex; justify-content: space-between; align-items:center;">
+        <div>
+            <h1 class="view-title text-accent" id="cbt-subject-title">JAMB CBT Mock</h1>
+            <p class="view-subtitle">Question <span id="cbt-current-q">1</span> of <span id="cbt-total-q">--</span></p>
+        </div>
+        <div class="timer-disp bg-dark padding-1 rounded text-warning">
+            <i class='bx bx-time-five'></i> <span id="cbt-timer" style="font-weight: bold; font-family: monospace; font-size: 1.2rem;">00:00:00</span>
+        </div>
+    </div>
+    
+    <div id="cbt-question-container">
+        <div class="glass-card padding-2 mt-2">
+            <h2 id="cbt-question-text" class="mb-2" style="font-size: 1.3rem; line-height: 1.5;">Loading question...</h2>
+            
+            <div class="options-container" id="cbt-options" style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- Options dynamically injected here -->
+            </div>
+        </div>
+        
+        <div class="cbt-controls mt-2" style="display: flex; justify-content: space-between; align-items: center;">
+            <button class="btn btn-outline" id="cbt-prev" disabled><i class='bx bx-left-arrow-alt'></i> Previous</button>
+            <button class="btn btn-primary" id="cbt-next">Next <i class='bx bx-right-arrow-alt'></i></button>
+            <button class="btn text-danger" id="cbt-submit" style="display:none;">Submit Exam</button>
+        </div>
+    </div>
+    
+    <div id="cbt-results" class="glass-card padding-2 mt-2 text-center" style="display: none;">
+        <h2>Exam Completed</h2>
+        <div style="font-size: 4rem; color: var(--success); margin: 1rem 0;" id="cbt-score-display">0%</div>
+        <p class="text-secondary mb-1" id="cbt-feedback">Review your answers below</p>
+        <button class="btn btn-primary mt-2" onclick="window.loadPage('mock-exams'); return false;">Back to Mock Exams</button>
+    </div>
+</section>

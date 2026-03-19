@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nigeria Academy | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="blob-bg"></div>
+    <div class="blob-bg blob-2"></div>
+    
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class='bx bxs-graduation'></i>
+                    <span>Naija<span class="text-accent">Academy</span></span>
+                </div>
+                <div class="mobile-close" id="mobileCloseNav">
+                    <i class='bx bx-x'></i>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h4>Main Menu</h4>
+                    <a href="#dashboard" class="nav-item active" data-target="dashboard">
+                        <i class='bx bx-grid-alt'></i> <span>Dashboard</span>
+                    </a>
+                    <a href="#mock-exams" class="nav-item" data-target="mock-exams">
+                        <i class='bx bx-stopwatch'></i> <span>Mock Exams</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <h4>Exam Prep</h4>
+                    <a href="#waec" class="nav-item" data-target="waec">
+                        <i class='bx bx-file'></i> <span>WAEC WASSCE</span>
+                    </a>
+                    <a href="#neco" class="nav-item" data-target="neco">
+                        <i class='bx bx-file-blank'></i> <span>NECO Focus</span>
+                    </a>
+                    <a href="#jamb" class="nav-item" data-target="jamb">
+                        <i class='bx bx-target-lock'></i> <span>JAMB UTME</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <h4>Subjects</h4>
+                    <a href="#maths" class="nav-item" data-target="maths">
+                        <i class='bx bx-calculator'></i> <span>Mathematics</span>
+                    </a>
+                    <a href="#physics" class="nav-item" data-target="physics">
+                        <i class='bx bx-magnet'></i> <span>Physics</span>
+                    </a>
+                    <a href="#chemistry" class="nav-item" data-target="chemistry">
+                        <i class='bx bx-test-tube'></i> <span>Chemistry</span>
+                    </a>
+                    <a href="#biology" class="nav-item" data-target="biology">
+                        <i class='bx bx-dna'></i> <span>Biology</span>
+                    </a>
+                    <a href="#english" class="nav-item" data-target="english">
+                        <i class='bx bx-book-bookmark'></i> <span>English Language</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section bottom-section">
+                    <a href="#profile" class="nav-item" data-target="profile">
+                        <i class='bx bx-user'></i> <span>My Profile</span>
+                    </a>
+                    <a href="#settings" class="nav-item" data-target="settings">
+                        <i class='bx bx-cog'></i> <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content" id="mainContent">
+            <!-- Mobile Header inside Main Area -->
+            <header class="mobile-header">
+                <div class="logo">
+                    <i class='bx bxs-graduation'></i>
+                    <span>Naija<span class="text-accent">Academy</span></span>
+                </div>
+                <div class="mobile-menu-btn" id="mobileOpenNav">
+                    <i class='bx bx-menu'></i>
+                </div>
+            </header>
+
+            <!-- Global Loader Overlay -->
+            <div id="global-loader" class="loader-overlay hidden">
+                <i class='bx bx-loader-alt bx-spin loader-icon'></i>
+                <p>Loading...</p>
+            </div>
+            
+            <!-- Dynamic Page Content Layer -->
+            <div id="page-content"></div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
