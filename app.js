@@ -42,13 +42,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         if (page === 'exams/cbt') {
-            const CBT_QUESTIONS = [
-                { q: 'Choose the word that is nearly OPPOSITE in meaning: Arrive', options: ['Depart', 'Come', 'Enter', 'Leave'], correct: 0 },
-                { q: 'If 2x + 4 = 10, what is x?', options: ['2', '3', '4', '6'], correct: 1 },
-                { q: 'What is the SI unit of Force?', options: ['Joule', 'Newton', 'Pascal', 'Watt'], correct: 1 },
-                { q: 'Which of the following is an organic compound?', options: ['NaCl', 'H2O', 'CH4', 'HCl'], correct: 2 },
-                { q: 'The powerhouse of the cell is the:', options: ['Nucleus', 'Mitochondria', 'Ribosome', 'Golgi apparatus'], correct: 1 }
-            ];
+            let CBT_QUESTIONS = [];
+            try {
+                const res = await fetch('./cbt_questions.json');
+                if (!res.ok) throw new Error("JSON Fetch failed");
+                const data = await res.json();
+                
+                const allQuestions = [];
+                for (const subject in data) {
+                    data[subject].forEach(item => {
+                        allQuestions.push({
+                            q: item.question,
+                            options: item.options,
+                            correct: item.answerIndex
+                        });
+                    });
+                }
+                
+                const shuffled = allQuestions.sort(() => 0.5 - Math.random());
+                CBT_QUESTIONS = shuffled.slice(0, 10);
+                
+                if (CBT_QUESTIONS.length === 0) throw new Error("Empty question bank");
+            } catch (err) {
+                console.error("Failed to load CBT questions:", err);
+                CBT_QUESTIONS = [
+                    { q: 'Network error loading real questions. Choose the opposite of Arrive:', options: ['Depart', 'Come', 'Enter', 'Leave'], correct: 0 }
+                ];
+            }
             
             let currentQ = 0;
             let selectedAnswers = new Array(CBT_QUESTIONS.length).fill(null);
