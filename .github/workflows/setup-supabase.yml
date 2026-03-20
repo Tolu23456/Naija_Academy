@@ -1,5 +1,8 @@
 name: Setup Supabase Config
 
+permissions:
+  contents: write 
+
 # Runs automatically when SUPABASE_URL or SUPABASE_ANON_KEY secrets are added/updated,
 # or manually from the GitHub Actions tab.
 #
