@@ -1,17 +1,85 @@
+# NaijaAcademy — Docker Compose
+#
+# Usage:
+#   cp .env.example .env          # fill in your values
+#   docker compose up             # start the app
+#   docker compose run scraper    # run the content scraper
+#   docker compose up --build     # rebuild after code changes
+#
+# For production (with Supabase baked in):
+#   SUPABASE_URL=... SUPABASE_ANON_KEY=... docker compose --profile prod up
+
 services:
+  # ── Dev server ──────────────────────────────────────────────────────────────
   app:
-    build: .
+    build:
+      context: .
+      args:
+        SUPABASE_URL: ${SUPABASE_URL:-}
+        SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:-}
     ports:
       - "5000:5000"
     environment:
-      # Your GitHub Personal Access Token (needs read:repo scope).
-      # The setup-env.js script uses this to fetch SUPABASE_URL and
-      # SUPABASE_ANON_KEY from your GitHub repo variables automatically.
-      - GH_TOKEN=${GH_TOKEN}
+      - EXPO_PUBLIC_SUPABASE_URL=${SUPABASE_URL:-}
+      - EXPO_PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-}
+      - NODE_ENV=development
     volumes:
-      # Mount source for live reload during development.
-      # Remove this block for a fully self-contained production container.
+      # Hot-reload: mount source (keep container node_modules intact)
       - .:/app
-      - /app/node_modules    # keep the container's node_modules intact
+      - /app/node_modules
     stdin_open: true
     tty: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ── Content scraper (run on demand) ────────────────────────────────────────
+  scraper:
+    build:
+      context: .
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: >
+      sh -c "
+        echo 'Running content scraper...' &&
+        pip3 install --break-system-packages -q requests beautifulsoup4 lxml &&
+        python3 scripts/scrape_content.py &&
+        python3 scripts/build_lessons_data.py &&
+        echo 'Scraping complete.'
+      "
+    profiles:
+      - scrape
+
+  # ── Lesson builder only (no network scraping) ───────────────────────────────
+  builder:
+    build:
+      context: .
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python3 scripts/build_lessons_data.py
+    profiles:
+      - build
+
+  # ── Production image (no source mount, Supabase baked in) ───────────────────
+  app-prod:
+    build:
+      context: .
+      args:
+        SUPABASE_URL: ${SUPABASE_URL}
+        SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    profiles:
+      - prod

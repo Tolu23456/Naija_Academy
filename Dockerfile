@@ -1,39 +1,40 @@
 FROM node:20-slim
 
-# ── System dependencies ────────────────────────────────────────────────────────
+# ── System deps ───────────────────────────────────────────────────────────────
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      curl \
-      git \
-      python3 \
-      python3-pip \
-      python3-venv \
-      ca-certificates \
-    && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-         | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
-         > /etc/apt/sources.list.d/github-cli.list \
-    && apt-get update \
-    && apt-get install -y gh \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+      curl git python3 python3-pip python3-venv ca-certificates \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# ── Node dependencies (cached layer) ──────────────────────────────────────────
-COPY package.json package-lock.json ./
+# ── Node dependencies (cached layer) ─────────────────────────────────────────
+COPY package.json package-lock.json* ./
 RUN npm install --legacy-peer-deps
 
-# ── Python dependencies (for scraper scripts) ─────────────────────────────────
+# ── Python dependencies ───────────────────────────────────────────────────────
 COPY requirements.txt ./
 RUN pip3 install --break-system-packages -r requirements.txt
 
-# ── Copy source ───────────────────────────────────────────────────────────────
+# ── App source ────────────────────────────────────────────────────────────────
 COPY . .
 
 EXPOSE 5000
 
-# GH_TOKEN is injected at runtime via docker-compose or -e flag.
-# The setup-env.js script uses it to fetch SUPABASE_URL and SUPABASE_ANON_KEY
-# from your GitHub repo variables and writes them to .env before Expo starts.
-ENV CI=1
-CMD ["sh", "-c", "node scripts/setup-env.js && npx expo start --web --port 5000"]
+# Build args that get baked into the image (set via docker-compose build args or --build-arg)
+ARG SUPABASE_URL=""
+ARG SUPABASE_ANON_KEY=""
+
+# Write supabase config from build args if provided
+RUN if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_ANON_KEY" ]; then \
+      printf '{\n  "url": "%s",\n  "anonKey": "%s"\n}\n' \
+        "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > lib/supabase.config.json; \
+      echo "[Docker] Supabase config written from build args."; \
+    else \
+      echo "[Docker] No SUPABASE_URL/KEY provided — app runs in guest mode."; \
+    fi
+
+ENV CI=1 \
+    EXPO_NO_DOTENV=1
+
+# Default: run the Expo web dev server
+CMD ["npx", "expo", "start", "--web", "--port", "5000", "--non-interactive"]
