@@ -7,6 +7,8 @@ type AuthContextType = {
   session: Session | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<string | null>;
+  signUp: (email: string, password: string, username: string) => Promise<string | null>;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -14,6 +16,8 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   loading: false,
   signOut: async () => {},
+  signIn: async () => null,
+  signUp: async () => null,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -50,8 +54,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setSession(null);
   };
 
+  const signIn = async (email: string, password: string): Promise<string | null> => {
+    if (!isSupabaseConfigured) return 'Supabase is not configured.';
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    return error ? error.message : null;
+  };
+
+  const signUp = async (email: string, password: string, username: string): Promise<string | null> => {
+    if (!isSupabaseConfigured) return 'Supabase is not configured.';
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { username },
+      },
+    });
+    return error ? error.message : null;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, signOut, signIn, signUp }}>
       {children}
     </AuthContext.Provider>
   );
