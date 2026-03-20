@@ -5,6 +5,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { useRouter } from 'expo-router';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { useTheme } from '@/context/ThemeContext';
@@ -14,6 +15,7 @@ type Mode = 'signin' | 'signup';
 
 export default function AuthScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { colors } = useTheme();
   const { signIn, signUp } = useAuth();
 
