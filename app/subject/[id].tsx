@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
+import { getTopicSlugs } from '@/lib/lessonsData';
 
 type Topic = { name: string; progress: number; desc: string };
 
@@ -76,21 +77,50 @@ const subjectData: Record<string, { name: string; color: string; icon: string; d
   },
 };
 
-function TopicCard({ topic, color }: { topic: Topic; color: string }) {
+/** Convert a topic name to the slug used in the Pages/ file system. */
+function topicSlug(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function TopicCard({
+  topic,
+  color,
+  subjectId,
+  hasLesson,
+  onPress,
+}: {
+  topic: Topic;
+  color: string;
+  subjectId: string;
+  hasLesson: boolean;
+  onPress: () => void;
+}) {
   return (
     <TouchableOpacity
       style={[styles.topicCard, { backgroundColor: Colors.surface, borderColor: Colors.surfaceBorder }]}
       activeOpacity={0.8}
+      onPress={onPress}
     >
       <View style={styles.topicInfo}>
-        <Text style={styles.topicName}>{topic.name}</Text>
+        <View style={styles.topicNameRow}>
+          <Text style={styles.topicName}>{topic.name}</Text>
+          {hasLesson && (
+            <View style={[styles.lessonBadge, { backgroundColor: `${color}22` }]}>
+              <Text style={[styles.lessonBadgeText, { color }]}>Notes</Text>
+            </View>
+          )}
+        </View>
         <Text style={styles.topicDesc}>{topic.desc}</Text>
         <View style={styles.progressBg}>
           <View style={[styles.progressFill, { width: `${topic.progress}%` as any, backgroundColor: color }]} />
         </View>
         <Text style={[styles.progressText, { color: Colors.textSecondary }]}>{topic.progress}% complete</Text>
       </View>
-      <Ionicons name="arrow-forward-circle-outline" size={24} color={topic.progress > 0 ? color : Colors.textSecondary} />
+      <Ionicons
+        name={hasLesson ? 'book-outline' : 'arrow-forward-circle-outline'}
+        size={24}
+        color={hasLesson || topic.progress > 0 ? color : Colors.textSecondary}
+      />
     </TouchableOpacity>
   );
 }
@@ -103,9 +133,13 @@ export default function SubjectScreen() {
   const bottomPad = Platform.OS === 'web' ? 34 : 0;
 
   const subject = subjectData[id as string] ?? subjectData['maths'];
+  const subjectId = (id as string) ?? 'maths';
   const overallProgress = Math.round(
     subject.topics.reduce((acc, t) => acc + t.progress, 0) / subject.topics.length
   );
+
+  // Slugs of topics that have scraped lesson content
+  const availableSlugs = new Set(getTopicSlugs(subjectId));
 
   return (
     <View style={[styles.container, { paddingTop: topPad }]}>
@@ -139,9 +173,22 @@ export default function SubjectScreen() {
         </View>
 
         <Text style={styles.topicsHeading}>Topics</Text>
-        {subject.topics.map((t, i) => (
-          <TopicCard key={i} topic={t} color={subject.color} />
-        ))}
+        {subject.topics.map((t, i) => {
+          const slug = topicSlug(t.name);
+          const hasLesson = availableSlugs.has(slug);
+          return (
+            <TopicCard
+              key={i}
+              topic={t}
+              color={subject.color}
+              subjectId={subjectId}
+              hasLesson={hasLesson}
+              onPress={() =>
+                router.push({ pathname: '/lesson', params: { subject: subjectId, topic: slug } })
+              }
+            />
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -149,15 +196,46 @@ export default function SubjectScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.md, paddingVertical: Spacing.md },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+  },
   headerTitle: { fontSize: 18, fontFamily: Fonts.semiBold, color: Colors.text },
-  summaryCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, borderRadius: Radius.lg, borderWidth: 1, padding: Spacing.md, marginBottom: Spacing.lg },
-  subjectIconBig: { width: 64, height: 64, borderRadius: Radius.lg, justifyContent: 'center', alignItems: 'center' },
+  summaryCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    padding: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  subjectIconBig: {
+    width: 64,
+    height: 64,
+    borderRadius: Radius.lg,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   subjectDesc: { fontSize: 13, fontFamily: Fonts.regular, color: Colors.textSecondary, marginBottom: Spacing.sm },
   topicsHeading: { fontSize: 18, fontFamily: Fonts.semiBold, color: Colors.text, marginBottom: Spacing.sm },
-  topicCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, borderRadius: Radius.md, borderWidth: 1, padding: Spacing.md, marginBottom: Spacing.sm },
+  topicCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
   topicInfo: { flex: 1, gap: 4 },
+  topicNameRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   topicName: { fontSize: 16, fontFamily: Fonts.semiBold, color: Colors.text },
+  lessonBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
+  lessonBadgeText: { fontSize: 11, fontFamily: Fonts.semiBold },
   topicDesc: { fontSize: 12, fontFamily: Fonts.regular, color: Colors.textSecondary },
   progressBg: { height: 4, backgroundColor: Colors.surfaceBorder, borderRadius: Radius.full, marginVertical: 4 },
   progressFill: { height: 4, borderRadius: Radius.full },
