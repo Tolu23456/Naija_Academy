@@ -1,23 +1,25 @@
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
-import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { Colors } from '@/constants/theme';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function TabLayout() {
+  const { colors } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Colors.tabBar,
-          borderTopColor: Colors.tabBarBorder,
+          backgroundColor: colors.tabBar,
+          borderTopColor: colors.tabBarBorder,
           borderTopWidth: 1,
           height: Platform.OS === 'web' ? 84 : 60,
           paddingBottom: Platform.OS === 'web' ? 34 : 8,
           paddingTop: 8,
         },
-        tabBarActiveTintColor: Colors.accent,
-        tabBarInactiveTintColor: Colors.textSecondary,
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarLabelStyle: {
           fontSize: 11,
           fontFamily: 'Inter_500Medium',
@@ -47,7 +49,7 @@ export default function TabLayout() {
         options={{
           title: 'Subjects',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="book" size={size} color={color} />
+            <Ionicons name="book-outline" size={size} color={color} />
           ),
         }}
       />
@@ -56,7 +58,7 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />

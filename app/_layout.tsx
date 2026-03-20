@@ -1,23 +1,47 @@
 import { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Colors } from '@/constants/theme';
+import { Platform } from 'react-native';
+import { ThemeProvider, useTheme } from '@/context/ThemeContext';
+import { isOnboardingDone } from '@/app/onboarding';
 
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
+function AppContent() {
+  const { isDark, colors } = useTheme();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isOnboardingDone()) {
+      router.replace('/onboarding');
+    }
+  }, []);
+
+  return (
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="cbt" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
+        <Stack.Screen name="subject/[id]" options={{ headerShown: false }} />
+      </Stack>
+    </>
+  );
+}
+
 export default function RootLayout() {
-  const [fontsLoaded, fontError] = useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
-  });
+  const [fontsLoaded, fontError] = useFonts(
+    Platform.OS === 'web'
+      ? {}
+      : { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold }
+  );
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
@@ -30,12 +54,9 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
-        <StatusBar style="light" />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.background } }}>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="cbt" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
-          <Stack.Screen name="subject/[id]" options={{ headerShown: false }} />
-        </Stack>
+        <ThemeProvider>
+          <AppContent />
+        </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
   );
