@@ -5,27 +5,31 @@ import { useState } from 'react';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
+import { useUserStats } from '@/hooks/useUserStats';
 import { useRouter } from 'expo-router';
-
-const profileStats = [
-  { label: 'Topics Mastered', value: '24' },
-  { label: 'Study Streak', value: '14' },
-  { label: 'Avg Score', value: '72%' },
-];
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark, toggleTheme } = useTheme();
   const { user, signOut } = useAuth();
+  const { username, email, streak, topicsDone, avgScore } = useUserStats();
   const router = useRouter();
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : 0;
 
   const [notifications, setNotifications] = useState(true);
 
-  const displayName = user?.user_metadata?.full_name ?? user?.user_metadata?.user_name ?? 'Student';
-  const displayEmail = user?.email ?? 'student@naija.academy';
-  const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
+  const isOAuthUser = !!user?.app_metadata?.provider && user.app_metadata.provider !== 'email';
+  const providerLabel = isOAuthUser
+    ? (user?.app_metadata?.provider === 'github' ? 'GitHub Account' : `${user?.app_metadata?.provider} Account`)
+    : 'Email Account';
+  const providerIcon = user?.app_metadata?.provider === 'github' ? 'logo-github' : 'mail-outline';
+
+  const profileStats = [
+    { label: 'Topics Done', value: String(topicsDone) },
+    { label: 'Study Streak', value: streak === 1 ? '1 Day' : `${streak} Days` },
+    { label: 'Avg Score', value: avgScore > 0 ? `${Math.round(avgScore)}%` : '—' },
+  ];
 
   const handleSignOut = async () => {
     await signOut();
@@ -41,18 +45,16 @@ export default function ProfileScreen() {
       {/* Avatar */}
       <View style={styles.avatarSection}>
         <View style={[styles.avatarCircle, { backgroundColor: colors.accentDim, borderColor: colors.accent }]}>
-          {avatarUrl ? (
-            <Ionicons name="person" size={44} color={colors.accent} />
-          ) : (
-            <Ionicons name="person" size={44} color={colors.accent} />
-          )}
+          <Text style={[styles.avatarInitial, { color: colors.accent }]}>
+            {username.charAt(0).toUpperCase()}
+          </Text>
         </View>
-        <View style={styles.githubBadgeRow}>
-          <Ionicons name="logo-github" size={14} color={colors.textSecondary} />
-          <Text style={[styles.githubLabel, { color: colors.textSecondary }]}>GitHub Account</Text>
+        <View style={styles.providerRow}>
+          <Ionicons name={providerIcon as any} size={14} color={colors.textSecondary} />
+          <Text style={[styles.providerLabel, { color: colors.textSecondary }]}>{providerLabel}</Text>
         </View>
-        <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text>
-        <Text style={[styles.email, { color: colors.textSecondary }]}>{displayEmail}</Text>
+        <Text style={[styles.name, { color: colors.text }]}>{username}</Text>
+        {email ? <Text style={[styles.email, { color: colors.textSecondary }]}>{email}</Text> : null}
         <View style={[styles.badge, { backgroundColor: colors.accentDim }]}>
           <Text style={[styles.badgeText, { color: colors.accent }]}>JAMB 2026 Candidate</Text>
         </View>
@@ -71,10 +73,18 @@ export default function ProfileScreen() {
         ))}
       </View>
 
+      {topicsDone === 0 && (
+        <View style={[styles.hintCard, { backgroundColor: colors.accentDim, borderColor: colors.accent }]}>
+          <Ionicons name="rocket-outline" size={18} color={colors.accent} />
+          <Text style={[styles.hintText, { color: colors.accent }]}>
+            Complete your first mock test to start tracking your progress!
+          </Text>
+        </View>
+      )}
+
       {/* Study Preferences */}
       <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Study Preferences</Text>
       <View style={[styles.settingsGroup, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
-        {/* Notifications toggle */}
         <View style={[styles.settingRow, { borderBottomColor: colors.surfaceBorder }]}>
           <View style={[styles.settingIcon, { backgroundColor: colors.accentDim }]}>
             <Ionicons name="notifications-outline" size={18} color={colors.accent} />
@@ -88,7 +98,6 @@ export default function ProfileScreen() {
           />
         </View>
 
-        {/* Dark mode toggle — wired to real theme */}
         <View style={[styles.settingRow, { borderBottomColor: colors.surfaceBorder }]}>
           <View style={[styles.settingIcon, { backgroundColor: colors.accentDim }]}>
             <Ionicons name={isDark ? 'moon' : 'sunny'} size={18} color={colors.accent} />
@@ -102,7 +111,6 @@ export default function ProfileScreen() {
           />
         </View>
 
-        {/* Session duration */}
         <TouchableOpacity style={[styles.settingRow, { borderBottomColor: colors.surfaceBorder }]}>
           <View style={[styles.settingIcon, { backgroundColor: colors.accentDim }]}>
             <Ionicons name="timer-outline" size={18} color={colors.accent} />
@@ -114,7 +122,6 @@ export default function ProfileScreen() {
           </View>
         </TouchableOpacity>
 
-        {/* Target score */}
         <TouchableOpacity style={styles.settingRow}>
           <View style={[styles.settingIcon, { backgroundColor: colors.accentDim }]}>
             <Ionicons name="trending-up-outline" size={18} color={colors.accent} />
@@ -164,16 +171,19 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: Spacing.md },
   avatarSection: { alignItems: 'center', paddingVertical: Spacing.lg },
   avatarCircle: { width: 90, height: 90, borderRadius: 45, justifyContent: 'center', alignItems: 'center', borderWidth: 2, marginBottom: Spacing.sm },
-  githubBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 },
-  githubLabel: { fontSize: 12, fontFamily: Fonts.regular },
+  avatarInitial: { fontSize: 38, fontFamily: Fonts.bold },
+  providerRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 },
+  providerLabel: { fontSize: 12, fontFamily: Fonts.regular },
   name: { fontSize: 22, fontFamily: Fonts.bold },
   email: { fontSize: 14, fontFamily: Fonts.regular, marginTop: 2, marginBottom: Spacing.sm },
   badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: Radius.full },
   badgeText: { fontSize: 12, fontFamily: Fonts.semiBold },
-  statsCard: { flexDirection: 'row', borderRadius: Radius.lg, borderWidth: 1, marginBottom: Spacing.lg, overflow: 'hidden' },
+  statsCard: { flexDirection: 'row', borderRadius: Radius.lg, borderWidth: 1, marginBottom: Spacing.md, overflow: 'hidden' },
   statItem: { flex: 1, alignItems: 'center', paddingVertical: Spacing.md },
   statValue: { fontSize: 20, fontFamily: Fonts.bold },
   statLabel: { fontSize: 11, fontFamily: Fonts.regular, marginTop: 2, textAlign: 'center' },
+  hintCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, padding: Spacing.md, borderRadius: Radius.md, borderWidth: 1, marginBottom: Spacing.md },
+  hintText: { flex: 1, fontSize: 13, fontFamily: Fonts.medium, lineHeight: 18 },
   sectionTitle: { fontSize: 16, fontFamily: Fonts.semiBold, marginBottom: Spacing.sm, marginTop: Spacing.sm },
   settingsGroup: { borderRadius: Radius.lg, borderWidth: 1, marginBottom: Spacing.md, overflow: 'hidden' },
   settingRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, padding: Spacing.md, borderBottomWidth: 0 },

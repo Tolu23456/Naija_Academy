@@ -4,15 +4,9 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { useTheme } from '@/context/ThemeContext';
+import { useUserStats } from '@/hooks/useUserStats';
 
-const activity = [
-  { icon: 'checkmark-circle', colorKey: 'accent' as const, text: 'Completed Kinematics Quiz (90%)' },
-  { icon: 'book', colorKey: 'blue' as const, text: 'Read Organic Chemistry Intro' },
-  { icon: 'close-circle', colorKey: 'danger' as const, text: 'Failed Calculus Mock Test 1' },
-  { icon: 'checkmark-circle', colorKey: 'accent' as const, text: 'Completed Algebraic Fractions' },
-];
-
-const studyPath = [
+const STUDY_PATH = [
   'Calculus — Differentiation',
   'Physics — Waves & Optics',
   'Chemistry — Electrolysis',
@@ -21,18 +15,32 @@ const studyPath = [
   'Physics — Electricity',
 ];
 
+function daysUntilJamb(): number {
+  const today = new Date();
+  const jamb = new Date(today.getFullYear(), 2, 28); // March 28
+  if (jamb < today) jamb.setFullYear(today.getFullYear() + 1);
+  return Math.ceil((jamb.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { colors } = useTheme();
+  const { username, streak, topicsDone, avgScore, recentActivity } = useUserStats();
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : 0;
 
+  const readinessPct = avgScore > 0 ? `${Math.round(avgScore)}%` : '0%';
+  const streakLabel = streak === 1 ? '1 Day' : `${streak} Days`;
+
   const stats = [
-    { icon: 'flame', iconLib: 'Ionicons', color: colors.orange, bg: colors.orangeDim, value: '14 Days', label: 'Study Streak' },
-    { icon: 'shield-checkmark', iconLib: 'Ionicons', color: colors.accent, bg: colors.accentDim, value: '85%', label: 'JAMB Ready' },
-    { icon: 'book-open-variant', iconLib: 'MaterialCommunityIcons', color: colors.blue, bg: colors.blueDim, value: '24', label: 'Topics Done' },
+    { icon: 'flame', iconLib: 'Ionicons', color: colors.orange, bg: colors.orangeDim, value: streakLabel, label: 'Study Streak' },
+    { icon: 'shield-checkmark', iconLib: 'Ionicons', color: colors.accent, bg: colors.accentDim, value: readinessPct, label: 'JAMB Ready' },
+    { icon: 'book-open-variant', iconLib: 'MaterialCommunityIcons', color: colors.blue, bg: colors.blueDim, value: String(topicsDone), label: 'Topics Done' },
   ];
+
+  const jambDays = daysUntilJamb();
+  const greeting = streak > 0 ? `Welcome back, ${username}!` : `Welcome, ${username}!`;
 
   return (
     <ScrollView
@@ -42,12 +50,14 @@ export default function HomeScreen() {
     >
       {/* Header */}
       <View style={styles.header}>
-        <View>
-          <Text style={[styles.greeting, { color: colors.text }]}>Welcome back!</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.greeting, { color: colors.text }]} numberOfLines={1}>{greeting}</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Track your exam readiness</Text>
         </View>
         <View style={[styles.avatarBg, { backgroundColor: colors.accentDim }]}>
-          <Ionicons name="person" size={22} color={colors.accent} />
+          <Text style={[styles.avatarInitial, { color: colors.accent }]}>
+            {username.charAt(0).toUpperCase()}
+          </Text>
         </View>
       </View>
 
@@ -71,7 +81,7 @@ export default function HomeScreen() {
       <View style={[styles.countdownCard, { backgroundColor: colors.accentDim, borderColor: colors.accent }]}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.countdownLabel, { color: colors.accent }]}>JAMB UTME 2026</Text>
-          <Text style={[styles.countdownDays, { color: colors.text }]}>45 Days</Text>
+          <Text style={[styles.countdownDays, { color: colors.text }]}>{jambDays} Days</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary, marginTop: 2 }]}>until your exam</Text>
         </View>
         <TouchableOpacity
@@ -86,26 +96,38 @@ export default function HomeScreen() {
       {/* Recent Activity */}
       <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Activity</Text>
-        {activity.map((a, i) => (
-          <View key={i} style={[styles.activityRow, { borderBottomColor: colors.surfaceBorder }]}>
-            <Ionicons name={a.icon as any} size={18} color={colors[a.colorKey]} />
-            <Text style={[styles.activityText, { color: colors.textSecondary }]}>{a.text}</Text>
+        {recentActivity.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Ionicons name="time-outline" size={32} color={colors.textSecondary} />
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+              No activity yet. Start a mock test or study a topic!
+            </Text>
           </View>
-        ))}
+        ) : (
+          recentActivity.map((a, i) => (
+            <View key={i} style={[styles.activityRow, { borderBottomColor: colors.surfaceBorder }]}>
+              <Ionicons name={a.icon as any} size={18} color={colors[a.colorKey]} />
+              <Text style={[styles.activityText, { color: colors.textSecondary }]}>{a.text}</Text>
+            </View>
+          ))
+        )}
       </View>
 
       {/* Study Path */}
       <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Recommended Study Path</Text>
         <Text style={[styles.statLabel, { color: colors.textSecondary, marginBottom: Spacing.md }]}>
-          Based on your recent performance
+          {topicsDone === 0 ? 'Start here — great topics to kick off your prep' : 'Based on your recent performance'}
         </Text>
-        {studyPath.map((topic, i) => (
+        {STUDY_PATH.map((topic, i) => (
           <View key={i} style={styles.topicRow}>
-            <View style={[styles.topicNum, { backgroundColor: colors.accentDim }]}>
-              <Text style={[styles.topicNumText, { color: colors.accent }]}>{i + 1}</Text>
+            <View style={[styles.topicNum, { backgroundColor: i < topicsDone ? colors.accentDim : colors.surface, borderColor: colors.surfaceBorder, borderWidth: 1 }]}>
+              {i < topicsDone
+                ? <Ionicons name="checkmark" size={14} color={colors.accent} />
+                : <Text style={[styles.topicNumText, { color: colors.textSecondary }]}>{i + 1}</Text>
+              }
             </View>
-            <Text style={[styles.topicText, { color: colors.text }]}>{topic}</Text>
+            <Text style={[styles.topicText, { color: i < topicsDone ? colors.textSecondary : colors.text }]}>{topic}</Text>
           </View>
         ))}
       </View>
@@ -117,9 +139,10 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { paddingHorizontal: Spacing.md },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg },
-  greeting: { fontSize: 24, fontFamily: Fonts.bold },
+  greeting: { fontSize: 22, fontFamily: Fonts.bold },
   subtitle: { fontSize: 14, fontFamily: Fonts.regular, marginTop: 2 },
-  avatarBg: { width: 44, height: 44, borderRadius: Radius.full, justifyContent: 'center', alignItems: 'center' },
+  avatarBg: { width: 44, height: 44, borderRadius: Radius.full, justifyContent: 'center', alignItems: 'center', marginLeft: Spacing.sm },
+  avatarInitial: { fontSize: 20, fontFamily: Fonts.bold },
   statsRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
   statCard: { flex: 1, alignItems: 'center', padding: Spacing.md, borderRadius: Radius.md, borderWidth: 1, gap: Spacing.xs },
   statIcon: { width: 42, height: 42, borderRadius: Radius.md, justifyContent: 'center', alignItems: 'center' },
@@ -132,6 +155,8 @@ const styles = StyleSheet.create({
   ctaBtnText: { fontSize: 13, fontFamily: Fonts.semiBold, color: '#000' },
   card: { borderRadius: Radius.lg, borderWidth: 1, padding: Spacing.md, marginBottom: Spacing.md },
   sectionTitle: { fontSize: 18, fontFamily: Fonts.semiBold, marginBottom: Spacing.md },
+  emptyState: { alignItems: 'center', paddingVertical: Spacing.lg, gap: Spacing.sm },
+  emptyText: { fontSize: 13, fontFamily: Fonts.regular, textAlign: 'center', lineHeight: 18 },
   activityRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingVertical: Spacing.sm, borderBottomWidth: 1 },
   activityText: { fontSize: 14, fontFamily: Fonts.regular, flex: 1 },
   topicRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.sm },
