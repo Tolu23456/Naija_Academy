@@ -27,7 +27,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node_modules/.bin/expo start --web --port 5000 --non-interactive"
+args = "node scripts/setup-env.js && node_modules/.bin/expo start --web --port 5000 --non-interactive"
 waitForPort = 5000
 
 [[ports]]
