@@ -1,276 +1,351 @@
 {
-    "mathematics": [
-        {
-            "question": "Mathematics\nJAMB 1999\n\nA group of market women sell at least one of yam, plantain and maize. 12 of them sell maize, 10 sell yam and 14 sell plantain. 5 sell plantain and maize, 4 sell yam and maize, 2 sell yam and plantain only while 3 sell all the three items. How many women are in the group?",
-            "options": [
-                "25",
-                "19",
-                "18",
-                "17"
-            ],
-            "answerIndex": 0
-        },
-        {
-            "question": "Mathematics\nJAMB 1999\n\nIf log\\(_810\\)\u00a0= X, evaluate log\\(_85\\)\u00a0in terms of X.",
-            "options": [
-                "\\(\\frac{1}{2}\\)X",
-                "X-\\(\\frac{1}{4}\\)",
-                "X-\\(\\frac{1}{3}\\)",
-                "X-\\(\\frac{1}{2}\\)"
-            ],
-            "answerIndex": 2
-        },
-        {
-            "question": "Mathematics\nJAMB 1999\n\nFind the value of X if \\(\\frac{\\sqrt{2}}{x+\\sqrt{2}}=\\frac{1}{x-\\sqrt{2}}\\)",
-            "options": [
-                "3\u221a2+4",
-                "3\u221a2-4",
-                "3-2\u221a2",
-                "4+2\u221a2"
-            ],
-            "answerIndex": 0
-        },
-        {
-            "question": "Mathematics\nJAMB 1999\n\nIf \\(\\frac{(a^2 b^{-3}c)^{\\frac{3}{4}}}{a^{-1}b^{4}c^{5}}=a^{p} b^{q} c^{r}\\) What is the value of p+2q?",
-            "options": [
-                "(5/2)",
-                "-(5/4)",
-                "-(25/4)",
-                "-10"
-            ],
-            "answerIndex": 3
-        },
-        {
-            "question": "Mathematics\nJAMB 1999\n\nIf \\(\\frac{({a^2b^{-3}c})^{3/4}}{a^{-1}b^4c^5}\\) = \\(a^p b^q c^r\\); what is the value of p+2q?",
-            "options": [
-                "(5/2)",
-                "-(5/4)",
-                "-(25/4)",
-                "-10"
-            ],
-            "answerIndex": 3
-        }
-    ],
-    "english-language": [
-        {
-            "question": "English Language\nJAMB 1978\n\nChoose the option that best conveys the meaning of the underlined portion in the following sentence;\nIn the match against the uplanders team, the sub mariners turned out to be the dark horse",
-            "options": [
-                "played most brilliantly",
-                "played below their usual form",
-                "won unexpectedly",
-                "lost as expected",
-                "won as expected"
-            ],
-            "answerIndex": 2
-        },
-        {
-            "question": "English Language\nJAMB 1978\n\nChoose the option that best conveys the meaning of the underlined portion in the following sentence:\nOnly the small fry gets punished for such social misdemeanours.",
-            "options": [
-                "small boys",
-                "unimportant people",
-                "frightened people",
-                "frivolous people",
-                "inexperienced people"
-            ],
-            "answerIndex": 1
-        },
-        {
-            "question": "English Language\nJAMB 1978\n\nChoose the option that best conveys the meaning of the underlined portion in the following sentence;\nHe spoke with his heart in his mouth",
-            "options": [
-                "courageously",
-                "with such unusual cowardice",
-                "with a lot of confusion in his speech",
-                "without being able to make up his mind",
-                "with fright and agitation"
-            ],
-            "answerIndex": 4
-        },
-        {
-            "question": "English Language\nJAMB 1978\n\nChoose the option that best conveys the meaning of the underlined portion in the following sentence;\nThe leader in today's issue of our popular newspaper focuses on inflation",
-            "options": [
-                "president",
-                "headline",
-                "editorial",
-                "columnist",
-                "proprietor"
-            ],
-            "answerIndex": 2
-        },
-        {
-            "question": "English Language\nJAMB 1978\n\nChoose the option that best conveys the meaning of the underlined portion in the following sentence;\nFrom the ways my friend talks, you can see he is such a bore",
-            "options": [
-                "rude",
-                "brilliant",
-                "uninteresting",
-                "overbearing",
-                "humorous"
-            ],
-            "answerIndex": 2
-        }
-    ],
-    "chemistry": [
-        {
-            "question": "Chemistry\nJAMB 1988\n\nWhich of the following statements is NOT correct?",
-            "options": [
-                "The average kinetic energy of a gas is directly proportional to its temperature",
-                "At constant temperature, the volume of a gas increases as the pressure increases",
-                "The pressure of a gas is directly proportional to the density.",
-                "The temperature of a gas is directly proportional to its volume"
-            ],
-            "answerIndex": 1
-        },
-        {
-            "question": "Chemistry\nJAMB 1978\n\nZinc Oxide is a?",
-            "options": [
-                "Basic Oxide",
-                "Acidic Oxide",
-                "Amphoteric Oxide",
-                "Neutral Oxide",
-                "Reactive Oxide"
-            ],
-            "answerIndex": 2
-        },
-        {
-            "question": "Chemistry\nJAMB 1978\n\nWhen sodium chloride and metallic sodium are each dissolved in water",
-            "options": [
-                "both processes are exothermic",
-                "both processes are endothermic",
-                "the dissolution of metallic sodium is endothermic",
-                "the dissolution of metallic sodium is exothermic",
-                "the dissolution of sodium chloride is explosive"
-            ],
-            "answerIndex": 3
-        },
-        {
-            "question": "Chemistry\nJAMB 1978\n\nThe periodic classification of elements is an arrangement of the elements in order of their",
-            "options": [
-                "Atomic Weights",
-                "Isotopic Weights",
-                "Molecular Weights",
-                "Atomic Numbers",
-                "Atomic Masses"
-            ],
-            "answerIndex": 3
-        },
-        {
-            "question": "Chemistry\nJAMB 1978\n\nIn the reaction between sodium hydroxide and sulphuric acid solutions, what volume of 0.5M\u00a0sodium hydroxide would exactly neutralise 10cm\\(^3\\) of 1.25M\u00a0sulphuric acid?",
-            "options": [
-                "5cm3",
-                "10cm3",
-                "20cm3",
-                "25cm3",
-                "50cm3"
-            ],
-            "answerIndex": 4
-        }
-    ],
-    "physics": [
-        {
-            "question": "Physics\nJAMB 1999\n\nThe inner diameter of a test tube can be measured accurately using a?",
-            "options": [
-                "micrometer screw guage",
-                "pair of dividers",
-                "metre rule",
-                "pair of vernier calipers"
-            ],
-            "answerIndex": 3
-        },
-        {
-            "question": "Physics\nJAMB 1999\n\nTwo bodies have masses in the ratio 3:1. They experience forces which impart to them acceleration in the ratio 2:9 respectively. Find the ratio of forces the masses experienced.",
-            "options": [
-                "1 : 4",
-                "2 : 1",
-                "2 : 3",
-                "2 : 5"
-            ],
-            "answerIndex": 2
-        },
-        {
-            "question": "Physics\nJAMB 1999\n\nParticles of mass 10\\(^{-2}\\)kg is fixed to the tip of a fan blade which rotates with angular velocity of 100rad-1. If the radius of the blade is 0.2m, the centripetal force is",
-            "options": [
-                "2 N",
-                "20 N",
-                "200 N",
-                "400 N"
-            ],
-            "answerIndex": 1
-        },
-        {
-            "question": "Physics\nJAMB 1999\n\nA lead bullet of mass 0.05kg is fired with a velocity of 200ms\\(^{-1}\\) into a lead block of mass 0.95kg. Given that the lead block can move freely, the final kinetic energy after impact is",
-            "options": [
-                "50 J",
-                "100 J",
-                "150 J",
-                "200 J"
-            ],
-            "answerIndex": 0
-        },
-        {
-            "question": "Physics\nJAMB 1999\n\nA ball of mass 0.1kg is thrown vertically upwards with a speed of 10ms-1 from the top of a tower 10m high. Neglecting air resistance, its total energy just before hitting the ground is\n\n(take g = 10ms-2)",
-            "options": [
-                "5 J",
-                "10 J",
-                "15 J",
-                "20 J"
-            ],
-            "answerIndex": 2
-        }
-    ],
-    "biology": [
-        {
-            "question": "Biology\nJAMB 1978\n\nA plant which grows on another plant without apparent harm to the host plant is called",
-            "options": [
-                "a parasite",
-                "an epiphyte",
-                "a saprophyte",
-                "a predator",
-                "a hermaphrodite"
-            ],
-            "answerIndex": 1
-        },
-        {
-            "question": "Biology\nJAMB 1978\n\nGiven the equation:\n6CO\\(_2\\)\u00a0+ 6H\\(_2\\)O \u2192 C\\(_6\\)H\\(_{12}\\)O\\(_6\\)\u00a0+ 6O\\(_2\\)\u00a0{Under sunlight & Chlorophyll)\n\nThe process represented by the above equation is?",
-            "options": [
-                "proteinsynthesis",
-                "respiration",
-                "photosynthesis",
-                "transpiration",
-                "translocation"
-            ],
-            "answerIndex": 2
-        },
-        {
-            "question": "Biology\nJAMB 1978\n\nGiven the equation:\n6CO\\(_2\\) + 6H\\(_2\\)O \u2192 C\\(_6\\)H\\(_{12}\\)O\\(_6\\) + 6O\\(_2\\) (Under sunlight & Chlorophyll)\nThe oxygen given off during the above process is derived from",
-            "options": [
-                "sunlight",
-                "chlorophyll",
-                "carbon dioxide",
-                "atmosphere",
-                "water"
-            ],
-            "answerIndex": 4
-        },
-        {
-            "question": "Biology\nJAMB 1978\n\nOne of the function of xylem is",
-            "options": [
-                "strengthening the stem",
-                "manufacturing food",
-                "reducing loss of water",
-                "conducting manufactured food",
-                "storing unused sugar"
-            ],
-            "answerIndex": 0
-        },
-        {
-            "question": "Biology\nJAMB 1978\n\nPeople suffering from myopia",
-            "options": [
-                "can see near object clearly",
-                "can see far away object clearly",
-                "cannot see any object clearly",
-                "are colour blind",
-                "are able to see clearly in the dark"
-            ],
-            "answerIndex": 0
-        }
-    ]
+  "mathematics": [
+    {
+      "question": "A group of market women sell at least one of yam, plantain and maize. 12 of them sell maize, 10 sell yam and 14 sell plantain. 5 sell plantain and maize, 4 sell yam and maize, 2 sell yam and plantain only while 3 sell all the three items. How many women are in the group?",
+      "options": [
+        "25",
+        "19",
+        "18",
+        "17"
+      ],
+      "answerIndex": 0,
+      "exam_type": "JAMB",
+      "year": 1999,
+      "subject": "mathematics"
+    },
+    {
+      "question": "If log\\(_810\\) = X, evaluate log\\(_85\\) in terms of X.",
+      "options": [
+        "\\(\\frac{1}{2}\\)X",
+        "X-\\(\\frac{1}{4}\\)",
+        "X-\\(\\frac{1}{3}\\)",
+        "X-\\(\\frac{1}{2}\\)"
+      ],
+      "answerIndex": 2,
+      "exam_type": "JAMB",
+      "year": 1999,
+      "subject": "mathematics"
+    },
+    {
+      "question": "Find the value of X if \\(\\frac{\\sqrt{2}}{x+\\sqrt{2}}=\\frac{1}{x-\\sqrt{2}}\\)",
+      "options": [
+        "3√2+4",
+        "3√2-4",
+        "3-2√2",
+        "4+2√2"
+      ],
+      "answerIndex": 0,
+      "exam_type": "JAMB",
+      "year": 1999,
+      "subject": "mathematics"
+    },
+    {
+      "question": "If \\(\\frac{(a^2 b^{-3}c)^{\\frac{3}{4}}}{a^{-1}b^{4}c^{5}}=a^{p} b^{q} c^{r}\\) What is the value of p+2q?",
+      "options": [
+        "(5/2)",
+        "-(5/4)",
+        "-(25/4)",
+        "-10"
+      ],
+      "answerIndex": 3,
+      "exam_type": "JAMB",
+      "year": 1999,
+      "subject": "mathematics"
+    },
+    {
+      "question": "If \\(\\frac{({a^2b^{-3}c})^{3/4}}{a^{-1}b^4c^5}\\) = \\(a^p b^q c^r\\); what is the value of p+2q?",
+      "options": [
+        "(5/2)",
+        "-(5/4)",
+        "-(25/4)",
+        "-10"
+      ],
+      "answerIndex": 3,
+      "exam_type": "JAMB",
+      "year": 1999,
+      "subject": "mathematics"
+    }
+  ],
+  "english-language": [
+    {
+      "question": "Choose the option that best conveys the meaning of the underlined portion in the following sentence;\nIn the match against the uplanders team, the sub mariners turned out to be the dark horse",
+      "options": [
+        "played most brilliantly",
+        "played below their usual form",
+        "won unexpectedly",
+        "lost as expected",
+        "won as expected"
+      ],
+      "answerIndex": 2,
+      "exam_type": "JAMB",
+      "year": 1978,
+      "subject": "english-language"
+    },
+    {
+      "question": "Choose the option that best conveys the meaning of the underlined portion in the following sentence:\nOnly the small fry gets punished for such social misdemeanours.",
+      "options": [
+        "small boys",
+        "unimportant people",
+        "frightened people",
+        "frivolous people",
+        "inexperienced people"
+      ],
+      "answerIndex": 1,
+      "exam_type": "JAMB",
+      "year": 1978,
+      "subject": "english-language"
+    },
+    {
+      "question": "Choose the option that best conveys the meaning of the underlined portion in the following sentence;\nHe spoke with his heart in his mouth",
+      "options": [
+        "courageously",
+        "with such unusual cowardice",
+        "with a lot of confusion in his speech",
+        "without being able to make up his mind",
+        "with fright and agitation"
+      ],
+      "answerIndex": 4,
+      "exam_type": "JAMB",
+      "year": 1978,
+      "subject": "english-language"
+    },
+    {
+      "question": "Choose the option that best conveys the meaning of the underlined portion in the following sentence;\nThe leader in today's issue of our popular newspaper focuses on inflation",
+      "options": [
+        "president",
+        "headline",
+        "editorial",
+        "columnist",
+        "proprietor"
+      ],
+      "answerIndex": 2,
+      "exam_type": "JAMB",
+      "year": 1978,
+      "subject": "english-language"
+    },
+    {
+      "question": "Choose the option that best conveys the meaning of the underlined portion in the following sentence;\nFrom the ways my friend talks, you can see he is such a bore",
+      "options": [
+        "rude",
+        "brilliant",
+        "uninteresting",
+        "overbearing",
+        "humorous"
+      ],
+      "answerIndex": 2,
+      "exam_type": "JAMB",
+      "year": 1978,
+      "subject": "english-language"
+    }
+  ],
+  "chemistry": [
+    {
+      "question": "Which of the following statements is NOT correct?",
+      "options": [
+        "The average kinetic energy of a gas is directly proportional to its temperature",
+        "At constant temperature, the volume of a gas increases as the pressure increases",
+        "The pressure of a gas is directly proportional to the density.",
+        "The temperature of a gas is directly proportional to its volume"
+      ],
+      "answerIndex": 1,
+      "exam_type": "JAMB",
+      "year": 1988,
+      "subject": "chemistry"
+    },
+    {
+      "question": "Zinc Oxide is a?",
+      "options": [
+        "Basic Oxide",
+        "Acidic Oxide",
+        "Amphoteric Oxide",
+        "Neutral Oxide",
+        "Reactive Oxide"
+      ],
+      "answerIndex": 2,
+      "exam_type": "JAMB",
+      "year": 1978,
+      "subject": "chemistry"
+    },
+    {
+      "question": "When sodium chloride and metallic sodium are each dissolved in water",
+      "options": [
+        "both processes are exothermic",
+        "both processes are endothermic",
+        "the dissolution of metallic sodium is endothermic",
+        "the dissolution of metallic sodium is exothermic",
+        "the dissolution of sodium chloride is explosive"
+      ],
+      "answerIndex": 3,
+      "exam_type": "JAMB",
+      "year": 1978,
+      "subject": "chemistry"
+    },
+    {
+      "question": "The periodic classification of elements is an arrangement of the elements in order of their",
+      "options": [
+        "Atomic Weights",
+        "Isotopic Weights",
+        "Molecular Weights",
+        "Atomic Numbers",
+        "Atomic Masses"
+      ],
+      "answerIndex": 3,
+      "exam_type": "JAMB",
+      "year": 1978,
+      "subject": "chemistry"
+    },
+    {
+      "question": "In the reaction between sodium hydroxide and sulphuric acid solutions, what volume of 0.5M sodium hydroxide would exactly neutralise 10cm\\(^3\\) of 1.25M sulphuric acid?",
+      "options": [
+        "5cm3",
+        "10cm3",
+        "20cm3",
+        "25cm3",
+        "50cm3"
+      ],
+      "answerIndex": 4,
+      "exam_type": "JAMB",
+      "year": 1978,
+      "subject": "chemistry"
+    }
+  ],
+  "physics": [
+    {
+      "question": "The inner diameter of a test tube can be measured accurately using a?",
+      "options": [
+        "micrometer screw guage",
+        "pair of dividers",
+        "metre rule",
+        "pair of vernier calipers"
+      ],
+      "answerIndex": 3,
+      "exam_type": "JAMB",
+      "year": 1999,
+      "subject": "physics"
+    },
+    {
+      "question": "Two bodies have masses in the ratio 3:1. They experience forces which impart to them acceleration in the ratio 2:9 respectively. Find the ratio of forces the masses experienced.",
+      "options": [
+        "1 : 4",
+        "2 : 1",
+        "2 : 3",
+        "2 : 5"
+      ],
+      "answerIndex": 2,
+      "exam_type": "JAMB",
+      "year": 1999,
+      "subject": "physics"
+    },
+    {
+      "question": "Particles of mass 10\\(^{-2}\\)kg is fixed to the tip of a fan blade which rotates with angular velocity of 100rad-1. If the radius of the blade is 0.2m, the centripetal force is",
+      "options": [
+        "2 N",
+        "20 N",
+        "200 N",
+        "400 N"
+      ],
+      "answerIndex": 1,
+      "exam_type": "JAMB",
+      "year": 1999,
+      "subject": "physics"
+    },
+    {
+      "question": "A lead bullet of mass 0.05kg is fired with a velocity of 200ms\\(^{-1}\\) into a lead block of mass 0.95kg. Given that the lead block can move freely, the final kinetic energy after impact is",
+      "options": [
+        "50 J",
+        "100 J",
+        "150 J",
+        "200 J"
+      ],
+      "answerIndex": 0,
+      "exam_type": "JAMB",
+      "year": 1999,
+      "subject": "physics"
+    },
+    {
+      "question": "A ball of mass 0.1kg is thrown vertically upwards with a speed of 10ms-1 from the top of a tower 10m high. Neglecting air resistance, its total energy just before hitting the ground is\n(take g = 10ms-2)",
+      "options": [
+        "5 J",
+        "10 J",
+        "15 J",
+        "20 J"
+      ],
+      "answerIndex": 2,
+      "exam_type": "JAMB",
+      "year": 1999,
+      "subject": "physics"
+    }
+  ],
+  "biology": [
+    {
+      "question": "A plant which grows on another plant without apparent harm to the host plant is called",
+      "options": [
+        "a parasite",
+        "an epiphyte",
+        "a saprophyte",
+        "a predator",
+        "a hermaphrodite"
+      ],
+      "answerIndex": 1,
+      "exam_type": "JAMB",
+      "year": 1978,
+      "subject": "biology"
+    },
+    {
+      "question": "Given the equation:\n6CO\\(_2\\) + 6H\\(_2\\)O → C\\(_6\\)H\\(_{12}\\)O\\(_6\\) + 6O\\(_2\\) {Under sunlight & Chlorophyll)\nThe process represented by the above equation is?",
+      "options": [
+        "proteinsynthesis",
+        "respiration",
+        "photosynthesis",
+        "transpiration",
+        "translocation"
+      ],
+      "answerIndex": 2,
+      "exam_type": "JAMB",
+      "year": 1978,
+      "subject": "biology"
+    },
+    {
+      "question": "Given the equation:\n6CO\\(_2\\) + 6H\\(_2\\)O → C\\(_6\\)H\\(_{12}\\)O\\(_6\\) + 6O\\(_2\\) (Under sunlight & Chlorophyll)\nThe oxygen given off during the above process is derived from",
+      "options": [
+        "sunlight",
+        "chlorophyll",
+        "carbon dioxide",
+        "atmosphere",
+        "water"
+      ],
+      "answerIndex": 4,
+      "exam_type": "JAMB",
+      "year": 1978,
+      "subject": "biology"
+    },
+    {
+      "question": "One of the function of xylem is",
+      "options": [
+        "strengthening the stem",
+        "manufacturing food",
+        "reducing loss of water",
+        "conducting manufactured food",
+        "storing unused sugar"
+      ],
+      "answerIndex": 0,
+      "exam_type": "JAMB",
+      "year": 1978,
+      "subject": "biology"
+    },
+    {
+      "question": "People suffering from myopia",
+      "options": [
+        "can see near object clearly",
+        "can see far away object clearly",
+        "cannot see any object clearly",
+        "are colour blind",
+        "are able to see clearly in the dark"
+      ],
+      "answerIndex": 0,
+      "exam_type": "JAMB",
+      "year": 1978,
+      "subject": "biology"
+    }
+  ]
 }
