@@ -1,52 +1,67 @@
-# NaijaAcademy — Expo App
+# NaijaAcademy
 
-## Overview
-A React Native / Expo mobile app for Nigerian exam prep (WAEC, NECO, JAMB).
-Covers Mathematics, Physics, Chemistry, Biology, and English Language.
+A React Native / Expo mobile and web application for Nigerian students preparing for JAMB, WAEC, and NECO examinations.
+
+## Features
+
+- **Lesson Notes**: Subject-specific lesson content for Mathematics, Physics, Chemistry, Biology, and English
+- **CBT Mock Exams**: Computer-Based Testing simulator with 350+ past exam questions
+- **Progress Tracking**: Dashboard with study streaks, readiness percentages, and activity history
+- **Auth**: Supabase-based authentication with email/password and GitHub OAuth
 
 ## Tech Stack
-- **Expo SDK 52** with Expo Router (file-based routing)
-- **React Native 0.76** with web support (react-native-web)
-- **TypeScript** throughout
-- **@tanstack/react-query** for state management
-- **@expo/vector-icons** (Ionicons, MaterialCommunityIcons)
-- **react-native-reanimated** for animations
-- **react-native-safe-area-context** for device insets
+
+- **Framework**: Expo SDK 52 with expo-router (file-based navigation)
+- **UI**: React Native + react-native-web (runs on web and mobile)
+- **Backend**: Supabase (auth + database)
+- **State**: @tanstack/react-query
+- **Navigation**: expo-router with bottom tabs
 
 ## Project Structure
+
 ```
-app/
-  _layout.tsx          # Root layout (fonts, query client, gesture handler)
-  (tabs)/
-    _layout.tsx        # Bottom tab navigation
-    index.tsx          # Dashboard (Home tab)
-    exams.tsx          # Mock Exams tab
-    subjects.tsx       # Subjects list tab
-    profile.tsx        # Profile & Settings tab
-  cbt.tsx              # CBT Exam full-screen modal
-  subject/[id].tsx     # Subject detail screen
-constants/
-  theme.ts             # Colors, fonts, spacing, radius
-assets/                # App icons and splash screen
-cbt_questions.json     # CBT exam question bank (imported directly)
+app/               # Expo Router file-based routes
+  (tabs)/          # Bottom tab navigation (Dashboard, Exams, Subjects, Profile)
+  _layout.tsx      # Root layout (fonts, theme, auth)
+  subject/[id].tsx # Dynamic subject route
+  lesson.tsx       # Lesson content viewer
+  cbt.tsx          # CBT exam interface
+  auth.tsx         # Auth screen
+  onboarding.tsx   # Onboarding flow
+components/        # Reusable UI components
+context/           # React context providers (Auth, Theme)
+lib/               # Data and service layers
+  lessonsData.ts   # All lesson HTML content (auto-generated)
+  supabase.ts      # Supabase client
+scripts/           # Content pipeline scripts
+  scrape_content.py      # Scrapes lessons from educational sites
+  build_lessons_data.py  # Compiles HTML into lessonsData.ts
+  refresh_lessons.sh     # Orchestrates the full pipeline
+assets/            # Images, fonts, scraped media
+Pages/             # Intermediate HTML storage for scraper output
 ```
 
-## Navigation
-- **Bottom Tabs**: Home, Exams, Subjects, Profile
-- **Exam flow**: Exams tab → CBT full-screen modal
-- **Subject flow**: Subjects tab → Subject detail with topics
+## Running the App
 
-## Design
-- Dark theme (#0A0E1A background)
-- Green accent (#00D26A) — Nigeria flag inspired
-- Glass-card surfaces with border highlights
-- Inter font family
+The app runs via the "Start application" workflow which:
+1. Installs npm dependencies (`npm install`)
+2. Starts the Expo dev server (`npx expo start --web --port 5000 --non-interactive`)
 
-## Running
-```
-npx expo start --web --port 5000
-```
-Workflow: "Start application" on port 5000 (web preview)
+## Environment Variables
+
+The app uses Supabase for backend services. Set these as Replit secrets to enable auth:
+- `EXPO_PUBLIC_SUPABASE_URL` — your Supabase project URL
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY` — your Supabase anonymous/public key
+
+Without these, the app runs in offline/demo mode (content and CBT still work, auth is disabled).
+
+## Content Pipeline
+
+To refresh lesson content:
+1. `python3 scripts/scrape_content.py` — fetch new lessons
+2. `python3 scripts/build_lessons_data.py` — compile into `lib/lessonsData.ts`
+Or run `bash scripts/refresh_lessons.sh` to do both steps at once.
 
 ## Deployment
-Configured as autoscale with `expo start --no-dev`.
+
+Uses Expo for EAS builds (iOS/Android). For web deployment, the Expo Metro bundler compiles a static web app. See `eas.json` for EAS configuration.
