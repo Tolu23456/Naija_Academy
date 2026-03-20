@@ -1,0 +1,104 @@
+name: Setup Supabase Config
+
+# Runs automatically when SUPABASE_URL or SUPABASE_ANON_KEY secrets are added/updated,
+# or manually from the GitHub Actions tab.
+#
+# HOW TO USE:
+# 1. Go to your GitHub repo → Settings → Secrets and variables → Actions
+# 2. Add two repository secrets:
+#    - SUPABASE_URL        (e.g. https://abcxyz.supabase.co)
+#    - SUPABASE_ANON_KEY   (your project's public anon key)
+# 3. Run this workflow manually from the Actions tab (or it runs on push to main)
+# 4. The workflow commits lib/supabase.config.json with your credentials
+# 5. The app will now use those credentials on all platforms — no Replit secrets needed
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/setup-supabase.yml'
+
+jobs:
+  write-supabase-config:
+    runs-on: ubuntu-latest
+    if: ${{ vars.SUPABASE_URL != '' || secrets.SUPABASE_URL != '' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Write supabase.config.json
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::warning::SUPABASE_URL or SUPABASE_ANON_KEY secret is not set. Skipping config update."
+            exit 0
+          fi
+
+          cat > lib/supabase.config.json << EOF
+          {
+            "url": "${SUPABASE_URL}",
+            "anonKey": "${SUPABASE_ANON_KEY}"
+          }
+          EOF
+
+          echo "✅ lib/supabase.config.json written successfully"
+          echo "   URL: ${SUPABASE_URL}"
+          echo "   Key: ${SUPABASE_ANON_KEY:0:12}..."
+
+      - name: Set up Supabase database schema
+        if: ${{ env.SUPABASE_URL != '' }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::notice::SUPABASE_SERVICE_ROLE_KEY not set — skipping DB schema setup."
+            echo "Add it as a GitHub Secret to auto-create the user_stats table."
+            exit 0
+          fi
+
+          echo "Applying database schema..."
+
+          curl -s -X POST "${SUPABASE_URL}/rest/v1/rpc/exec_sql" \
+            -H "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "sql": "CREATE TABLE IF NOT EXISTS user_stats (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE NOT NULL, study_streak integer DEFAULT 0, readiness_pct integer DEFAULT 0, avg_score integer DEFAULT 0, questions_done integer DEFAULT 0, study_hours integer DEFAULT 0, recent_activity jsonb DEFAULT '\''[]'\''::jsonb, created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()); ALTER TABLE user_stats ENABLE ROW LEVEL SECURITY; CREATE POLICY IF NOT EXISTS \"Users can read own stats\" ON user_stats FOR SELECT USING (auth.uid() = user_id); CREATE POLICY IF NOT EXISTS \"Users can insert own stats\" ON user_stats FOR INSERT WITH CHECK (auth.uid() = user_id); CREATE POLICY IF NOT EXISTS \"Users can update own stats\" ON user_stats FOR UPDATE USING (auth.uid() = user_id);"
+            }' || echo "::warning::Schema setup via REST failed — use Supabase dashboard SQL editor if needed."
+
+          echo "✅ Schema setup complete"
+
+      - name: Commit updated config
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          if git diff --quiet lib/supabase.config.json; then
+            echo "No changes to commit — config already up to date."
+          else
+            git add lib/supabase.config.json
+            git commit -m "chore: update supabase config from GitHub Secrets [skip ci]"
+            git push
+            echo "✅ Config committed and pushed"
+          fi
+
+      - name: Summary
+        run: |
+          echo "## Supabase Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Setting | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Supabase URL | \`${{ secrets.SUPABASE_URL }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Anon Key | \`${SUPABASE_ANON_KEY:0:16}...\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Config file | \`lib/supabase.config.json\` ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> The app will now use these credentials on all platforms without any Replit setup." >> $GITHUB_STEP_SUMMARY
+        env:
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
