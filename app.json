@@ -33,6 +33,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "723be09e-7d43-4167-a17b-7920fd9e7a7a"
+      }
+    },
+    "owner": "xess"
   }
 }
