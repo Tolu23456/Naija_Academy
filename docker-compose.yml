@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      # Your GitHub Personal Access Token (needs read:repo scope).
+      # The setup-env.js script uses this to fetch SUPABASE_URL and
+      # SUPABASE_ANON_KEY from your GitHub repo variables automatically.
+      - GH_TOKEN=${GH_TOKEN}
+    volumes:
+      # Mount source for live reload during development.
+      # Remove this block for a fully self-contained production container.
+      - .:/app
+      - /app/node_modules    # keep the container's node_modules intact
+    stdin_open: true
+    tty: true
