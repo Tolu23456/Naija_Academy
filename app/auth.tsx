@@ -233,6 +233,15 @@ export default function AuthScreen() {
             <Ionicons name="logo-github" size={20} color={colors.text} />
             <Text style={[styles.githubBtnText, { color: colors.text }]}>Continue with GitHub</Text>
           </TouchableOpacity>
+
+          {/* Guest */}
+          <TouchableOpacity
+            style={styles.guestBtn}
+            onPress={() => router.replace('/onboarding')}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.guestText, { color: colors.textSecondary }]}>Continue as Guest</Text>
+          </TouchableOpacity>
         </View>
 
         <Text style={[styles.disclaimer, { color: colors.textSecondary }]}>
@@ -296,5 +305,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm, height: 52, borderRadius: Radius.full, borderWidth: 1,
   },
   githubBtnText: { fontSize: 15, fontFamily: Fonts.semiBold },
+  guestBtn: { alignItems: 'center', paddingVertical: Spacing.md },
+  guestText: { fontSize: 14, fontFamily: Fonts.medium, textDecorationLine: 'underline' },
   disclaimer: { fontSize: 11, fontFamily: Fonts.regular, textAlign: 'center', lineHeight: 16 },
 });

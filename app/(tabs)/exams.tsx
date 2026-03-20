@@ -7,7 +7,7 @@ import { useTheme } from '@/context/ThemeContext';
 
 const examTypes = [
   {
-    id: 'jamb',
+    id: 'JAMB',
     label: 'JAMB',
     title: 'JAMB CBT Simulator',
     desc: 'Simulate the real JAMB UTME computer-based test experience with timed conditions.',
@@ -17,7 +17,7 @@ const examTypes = [
     primary: true,
   },
   {
-    id: 'waec',
+    id: 'WAEC',
     label: 'WAEC',
     title: 'WAEC Obj & Theory',
     desc: 'Practice past questions sorted by year and topic. Objectives and essay format.',
@@ -27,7 +27,7 @@ const examTypes = [
     primary: false,
   },
   {
-    id: 'neco',
+    id: 'NECO',
     label: 'NECO',
     title: 'NECO Simulator',
     desc: 'Specialized past questions for the NECO curriculum and exam format.',
@@ -36,12 +36,23 @@ const examTypes = [
     icon: 'school-outline',
     primary: false,
   },
+  {
+    id: 'ALL',
+    label: 'Mixed',
+    title: 'Mixed Practice',
+    desc: 'Practice questions from all exam types combined for comprehensive revision.',
+    colorKey: 'warning' as const,
+    dimKey: 'warningDim' as const,
+    icon: 'layers-outline',
+    primary: false,
+  },
 ];
 
 const tips = [
-  { icon: 'timer-outline', text: 'JAMB: 100 questions in 120 minutes' },
-  { icon: 'checkmark-circle-outline', text: 'Read all options before selecting' },
-  { icon: 'flag-outline', text: 'Flag difficult questions and revisit' },
+  { icon: 'timer-outline', text: 'JAMB: 100 questions in 120 minutes (72s each)' },
+  { icon: 'checkmark-circle-outline', text: 'Read all options carefully before selecting' },
+  { icon: 'flag-outline', text: 'Answer easy questions first, then revisit hard ones' },
+  { icon: 'calculator-outline', text: 'Use the review feature after each session' },
 ];
 
 export default function ExamsScreen() {
@@ -58,7 +69,9 @@ export default function ExamsScreen() {
       showsVerticalScrollIndicator={false}
     >
       <Text style={[styles.heading, { color: colors.text }]}>Mock Exams</Text>
-      <Text style={[styles.subheading, { color: colors.textSecondary }]}>Simulate real exam conditions</Text>
+      <Text style={[styles.subheading, { color: colors.textSecondary }]}>
+        Simulate real exam conditions with customisable settings
+      </Text>
 
       {examTypes.map((exam) => {
         const color = colors[exam.colorKey];
@@ -66,8 +79,11 @@ export default function ExamsScreen() {
         return (
           <TouchableOpacity
             key={exam.id}
-            style={[styles.examCard, { backgroundColor: colors.surface, borderColor: exam.primary ? color : colors.surfaceBorder }]}
-            onPress={() => router.push('/cbt')}
+            style={[
+              styles.examCard,
+              { backgroundColor: colors.surface, borderColor: exam.primary ? color : colors.surfaceBorder },
+            ]}
+            onPress={() => router.push({ pathname: '/exam-setup', params: { examType: exam.id } })}
             activeOpacity={0.8}
           >
             <View style={[styles.examBadge, { backgroundColor: dim }]}>
@@ -80,24 +96,15 @@ export default function ExamsScreen() {
               <Text style={[styles.examTitle, { color: colors.text }]}>{exam.title}</Text>
               <Text style={[styles.examDesc, { color: colors.textSecondary }]}>{exam.desc}</Text>
             </View>
-            <TouchableOpacity
-              style={[
-                styles.startBtn,
-                exam.primary
-                  ? { backgroundColor: color }
-                  : { backgroundColor: 'transparent', borderColor: color, borderWidth: 1 },
-              ]}
-              onPress={() => router.push('/cbt')}
-            >
+            <View style={[styles.startBtn, exam.primary ? { backgroundColor: color } : { borderColor: color, borderWidth: 1 }]}>
               <Text style={[styles.startBtnText, { color: exam.primary ? '#000' : color }]}>
-                {exam.primary ? 'Start' : 'Practice'}
+                {exam.primary ? 'Start' : 'Go'}
               </Text>
-            </TouchableOpacity>
+            </View>
           </TouchableOpacity>
         );
       })}
 
-      {/* Tips */}
       <View style={[styles.tipsCard, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
         <Text style={[styles.tipsTitle, { color: colors.text }]}>Exam Tips</Text>
         {tips.map((tip, i) => (
@@ -130,6 +137,6 @@ const styles = StyleSheet.create({
   startBtnText: { fontSize: 13, fontFamily: Fonts.semiBold },
   tipsCard: { borderRadius: Radius.lg, borderWidth: 1, padding: Spacing.md },
   tipsTitle: { fontSize: 16, fontFamily: Fonts.semiBold, marginBottom: Spacing.sm },
-  tipRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingVertical: 6 },
-  tipText: { fontSize: 13, fontFamily: Fonts.regular, flex: 1 },
+  tipRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.sm, paddingVertical: 6 },
+  tipText: { fontSize: 13, fontFamily: Fonts.regular, flex: 1, lineHeight: 19 },
 });

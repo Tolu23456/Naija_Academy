@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
-import { isOnboardingDone } from '@/app/onboarding';
+import { isOnboardingDone } from '@/lib/onboarding';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
 SplashScreen.preventAutoHideAsync();
@@ -21,13 +21,18 @@ function AppNavigator() {
 
   useEffect(() => {
     if (loading) return;
-    if (!isSupabaseConfigured || !user) {
-      router.replace('/auth');
-    } else if (!isOnboardingDone()) {
+
+    if (!isOnboardingDone()) {
       router.replace('/onboarding');
-    } else {
-      router.replace('/(tabs)');
+      return;
     }
+
+    if (isSupabaseConfigured && !user) {
+      router.replace('/auth');
+      return;
+    }
+
+    router.replace('/(tabs)');
   }, [user, loading]);
 
   return (
@@ -38,7 +43,9 @@ function AppNavigator() {
         <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="cbt" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
+        <Stack.Screen name="exam-setup" options={{ headerShown: false, presentation: 'modal' }} />
         <Stack.Screen name="subject/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="lesson" options={{ headerShown: false }} />
       </Stack>
     </>
   );

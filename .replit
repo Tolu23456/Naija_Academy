@@ -30,11 +30,11 @@ task = "shell.exec"
 args = "npm install && npx expo start --web --port 5000 --non-interactive"
 waitForPort = 5000
 
-[[ports]]
-localPort = 5000
-externalPort = 80
-
 [deployment]
 deploymentTarget = "autoscale"
 publicDir = "."
 run = ["npx", "expo", "start", "--web", "--port", "5000", "--no-dev"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80

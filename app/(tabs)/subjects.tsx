@@ -15,7 +15,6 @@ const subjects = [
     color: 'accent' as const,
     bg: 'accentDim' as const,
     topics: 6,
-    progress: 13,
     topicNames: ['Algebra', 'Calculus', 'Geometry', 'Trigonometry', 'Statistics', 'Matrices'],
   },
   {
@@ -26,7 +25,6 @@ const subjects = [
     color: 'orange' as const,
     bg: 'orangeDim' as const,
     topics: 7,
-    progress: 17,
     topicNames: ['Kinematics', 'Dynamics', 'Waves & Optics', 'Electricity', 'Magnetism', 'Heat & Temperature', 'Quantum'],
   },
   {
@@ -37,7 +35,6 @@ const subjects = [
     color: 'warning' as const,
     bg: 'warningDim' as const,
     topics: 5,
-    progress: 0,
     topicNames: ['Organic Chemistry', 'Acids & Bases', 'Periodic Table', 'Electrolysis', 'Redox Reactions'],
   },
   {
@@ -48,7 +45,6 @@ const subjects = [
     color: 'accent' as const,
     bg: 'accentDim' as const,
     topics: 5,
-    progress: 0,
     topicNames: ['Cell Biology', 'Genetics', 'Ecology', 'Human Biology', 'Plant Biology'],
   },
   {
@@ -59,7 +55,6 @@ const subjects = [
     color: 'blue' as const,
     bg: 'blueDim' as const,
     topics: 4,
-    progress: 0,
     topicNames: ['Comprehension', 'Grammar', 'Lexis & Structure', 'Oral English'],
   },
 ];
@@ -110,7 +105,6 @@ export default function SubjectsScreen() {
       <Text style={[styles.heading, { color: colors.text }]}>Subjects</Text>
       <Text style={[styles.subheading, { color: colors.textSecondary }]}>Choose a subject to study</Text>
 
-      {/* Search bar */}
       <View style={[styles.searchBar, { backgroundColor: colors.inputBg, borderColor: colors.surfaceBorder }]}>
         <Ionicons name="search-outline" size={18} color={colors.textSecondary} />
         <TextInput
@@ -129,14 +123,12 @@ export default function SubjectsScreen() {
         )}
       </View>
 
-      {/* Results count if searching */}
       {query.length > 0 && (
         <Text style={[styles.resultCount, { color: colors.textSecondary }]}>
           {filtered.length} {filtered.length === 1 ? 'subject' : 'subjects'} found
         </Text>
       )}
 
-      {/* Subject list */}
       {filtered.length === 0 ? (
         <View style={[styles.emptyState, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
           <Ionicons name="search" size={36} color={colors.textSecondary} />
@@ -158,12 +150,11 @@ export default function SubjectsScreen() {
               <Text style={[styles.subjectName, { color: colors.text }]}>{subject.name}</Text>
               <Text style={[styles.subjectDesc, { color: colors.textSecondary }]}>{subject.desc}</Text>
               <View style={[styles.progressBarBg, { backgroundColor: colors.surfaceBorder }]}>
-                <View style={[styles.progressBarFill, { width: `${subject.progress}%` as any, backgroundColor: colors[subject.color] }]} />
+                <View style={[styles.progressBarFill, { width: '0%', backgroundColor: colors[subject.color] }]} />
               </View>
               <Text style={[styles.subjectMeta, { color: colors.textSecondary }]}>
-                {subject.topics} topics · {subject.progress}% complete
+                {subject.topics} topics · 0% complete
               </Text>
-              {/* Show matched topics when searching */}
               {matchedTopics[subject.id] && (
                 <View style={styles.matchedTopics}>
                   {matchedTopics[subject.id].map((t) => (
@@ -179,7 +170,6 @@ export default function SubjectsScreen() {
         ))
       )}
 
-      {/* Exam Prep */}
       {query.length === 0 && (
         <>
           <Text style={[styles.heading, { fontSize: 20, marginTop: Spacing.md, color: colors.text }]}>Exam Prep</Text>
