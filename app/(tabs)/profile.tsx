@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'expo-router';
 
 const profileStats = [
   { label: 'Topics Mastered', value: '24' },
@@ -14,10 +16,21 @@ const profileStats = [
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark, toggleTheme } = useTheme();
+  const { user, signOut } = useAuth();
+  const router = useRouter();
   const topPad = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : 0;
 
   const [notifications, setNotifications] = useState(true);
+
+  const displayName = user?.user_metadata?.full_name ?? user?.user_metadata?.user_name ?? 'Student';
+  const displayEmail = user?.email ?? 'student@naija.academy';
+  const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.replace('/auth');
+  };
 
   return (
     <ScrollView
@@ -28,10 +41,18 @@ export default function ProfileScreen() {
       {/* Avatar */}
       <View style={styles.avatarSection}>
         <View style={[styles.avatarCircle, { backgroundColor: colors.accentDim, borderColor: colors.accent }]}>
-          <Ionicons name="person" size={44} color={colors.accent} />
+          {avatarUrl ? (
+            <Ionicons name="person" size={44} color={colors.accent} />
+          ) : (
+            <Ionicons name="person" size={44} color={colors.accent} />
+          )}
         </View>
-        <Text style={[styles.name, { color: colors.text }]}>Student</Text>
-        <Text style={[styles.email, { color: colors.textSecondary }]}>student@naija.academy</Text>
+        <View style={styles.githubBadgeRow}>
+          <Ionicons name="logo-github" size={14} color={colors.textSecondary} />
+          <Text style={[styles.githubLabel, { color: colors.textSecondary }]}>GitHub Account</Text>
+        </View>
+        <Text style={[styles.name, { color: colors.text }]}>{displayName}</Text>
+        <Text style={[styles.email, { color: colors.textSecondary }]}>{displayEmail}</Text>
         <View style={[styles.badge, { backgroundColor: colors.accentDim }]}>
           <Text style={[styles.badgeText, { color: colors.accent }]}>JAMB 2026 Candidate</Text>
         </View>
@@ -127,7 +148,10 @@ export default function ProfileScreen() {
         ))}
       </View>
 
-      <TouchableOpacity style={[styles.logoutBtn, { backgroundColor: colors.dangerDim, borderColor: colors.danger }]}>
+      <TouchableOpacity
+        style={[styles.logoutBtn, { backgroundColor: colors.dangerDim, borderColor: colors.danger }]}
+        onPress={handleSignOut}
+      >
         <Ionicons name="log-out-outline" size={18} color={colors.danger} />
         <Text style={[styles.logoutText, { color: colors.danger }]}>Sign Out</Text>
       </TouchableOpacity>
@@ -139,7 +163,9 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { paddingHorizontal: Spacing.md },
   avatarSection: { alignItems: 'center', paddingVertical: Spacing.lg },
-  avatarCircle: { width: 90, height: 90, borderRadius: 45, justifyContent: 'center', alignItems: 'center', borderWidth: 2, marginBottom: Spacing.md },
+  avatarCircle: { width: 90, height: 90, borderRadius: 45, justifyContent: 'center', alignItems: 'center', borderWidth: 2, marginBottom: Spacing.sm },
+  githubBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 },
+  githubLabel: { fontSize: 12, fontFamily: Fonts.regular },
   name: { fontSize: 22, fontFamily: Fonts.bold },
   email: { fontSize: 14, fontFamily: Fonts.regular, marginTop: 2, marginBottom: Spacing.sm },
   badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: Radius.full },
