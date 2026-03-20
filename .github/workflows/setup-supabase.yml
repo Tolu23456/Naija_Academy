@@ -22,7 +22,6 @@ on:
 jobs:
   write-supabase-config:
     runs-on: ubuntu-latest
-    if: ${{ vars.SUPABASE_URL != '' || secrets.SUPABASE_URL != '' }}
 
     steps:
       - name: Checkout repository
@@ -52,11 +51,15 @@ jobs:
           echo "   Key: ${SUPABASE_ANON_KEY:0:12}..."
 
       - name: Set up Supabase database schema
-        if: ${{ env.SUPABASE_URL != '' }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
+          if [ -z "$SUPABASE_URL" ]; then
+            echo "::notice::SUPABASE_URL not set — skipping DB setup."
+            exit 0
+          fi
+
           if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
             echo "::notice::SUPABASE_SERVICE_ROLE_KEY not set — skipping DB schema setup."
             echo "Add it as a GitHub Secret to auto-create the user_stats table."
@@ -90,6 +93,8 @@ jobs:
           fi
 
       - name: Summary
+        env:
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           echo "## Supabase Configuration" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -100,5 +105,3 @@ jobs:
           echo "| Config file | \`lib/supabase.config.json\` ✅ |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "> The app will now use these credentials on all platforms without any Replit setup." >> $GITHUB_STEP_SUMMARY
-        env:
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
