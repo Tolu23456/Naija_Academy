@@ -121,6 +121,54 @@ The profile page now has fully functional:
 - **Help & Support** — modal with support contacts
 - **About NaijaAcademy** — modal with app info and stats
 
+## Dynamic Content (No-Rebuild Updates)
+
+Lessons are served from Supabase Storage and fetched at app startup (cached for 24 h locally).
+This means content can be updated without rebuilding or redeploying the app.
+
+**Service**: `lib/remoteContent.ts`
+- Checks in-memory cache → AsyncStorage (24 h TTL) → remote fetch → baked-in fallback
+- Reads `EXPO_PUBLIC_LESSONS_URL` env var, or auto-constructs from `EXPO_PUBLIC_SUPABASE_URL`
+- Use `clearLessonsCache()` to force a fresh fetch
+
+**Upload pipeline**:
+```
+npm run scrape       # scrape content
+npm run merge:notes  # merge sources
+npm run build:lessons # compile to TypeScript
+npm run upload:content  # upload JSON to Supabase Storage
+```
+Or: `SUPABASE_URL=... SUPABASE_SERVICE_KEY=... python3 scripts/upload_content.py`
+
+**Env var**: set `EXPO_PUBLIC_LESSONS_URL` to the public Supabase Storage URL printed by `upload:content`.
+
+## Push Notifications
+
+Daily study reminders are scheduled with `expo-notifications`.
+- Toggle in **Profile → Daily Reminders**
+- Fires daily at 7:00 PM
+- Requests OS permission on first enable
+- Silently skipped on web (native-only feature)
+- No backend required — uses local device scheduling
+
+## Per-Subject Progress Tracking
+
+Every lesson view is recorded in `lib/studyTracker.ts` as `subject:slug` in AsyncStorage.
+- **Subjects screen**: progress bars show `% of topics studied` per subject
+- **Subject detail screen**: completed topics show a green checkmark and `Done` badge, with a coloured left border accent; progress bar shows user completion %
+- Functions: `getSubjectProgress(subjectId, totalTopics)`, `getAllSubjectsProgress()`
+
+## Content Pipeline (GitHub Actions)
+
+`.github/workflows/scrape-content.yml` runs every Sunday at 3am UTC:
+1. Scrape lesson content (all subjects, or one if `subject` input is set)
+2. Merge multi-source notes intelligently
+3. Compile lessons JSON
+4. Upload to Supabase Storage (no git commit → no Render rebuild)
+5. Commit only the questions bank if it changed (`[skip ci]`)
+
+**Required GitHub secrets**: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY` (service_role key)
+
 ## Replit Compatibility
 
 The following patches are applied to make Expo work behind Replit's proxy:

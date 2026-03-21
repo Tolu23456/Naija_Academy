@@ -11,7 +11,8 @@
     "scrape": "python3 scripts/scrape_content.py",
     "scrape:crawl": "python3 scripts/scrape_content.py --crawl",
     "merge:notes": "python3 scripts/merge_notes.py",
-    "build:lessons": "python3 scripts/build_lessons_data.py"
+    "build:lessons": "python3 scripts/build_lessons_data.py",
+    "upload:content": "python3 scripts/upload_content.py"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.2.3",
@@ -27,6 +28,7 @@
     "expo-font": "~13.0.4",
     "expo-linking": "~7.0.3",
     "expo-network": "~7.0.5",
+    "expo-notifications": "~0.29.14",
     "expo-router": "~4.0.0",
     "expo-splash-screen": "~0.29.13",
     "expo-status-bar": "~2.0.0",

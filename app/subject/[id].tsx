@@ -2,11 +2,12 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, TextInp
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { useTheme } from '@/context/ThemeContext';
 import { getSubject, SUBJECTS } from '@/lib/subjectsData';
 import { getTopicSlugs } from '@/lib/lessonsData';
+import { getSubjectProgress, SubjectProgress } from '@/lib/studyTracker';
 
 function topicSlug(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -21,12 +22,17 @@ export default function SubjectScreen() {
   const bottomPad  = Platform.OS === 'web' ? 34 : 0;
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [progress, setProgress] = useState<SubjectProgress | null>(null);
 
   const subjectId = (id as string) ?? SUBJECTS[0].id;
   const subject   = getSubject(subjectId) ?? SUBJECTS[0];
   const color     = colors[subject.colorKey];
 
   const availableSlugs = new Set(getTopicSlugs(subjectId));
+
+  useEffect(() => {
+    getSubjectProgress(subjectId, subject.topics.length).then(setProgress);
+  }, [subjectId, subject.topics.length]);
 
   const filteredTopics = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -36,7 +42,9 @@ export default function SubjectScreen() {
     );
   }, [searchQuery, subject.topics]);
 
-  const notesCount = subject.topics.filter(t => availableSlugs.has(topicSlug(t.name))).length;
+  const notesCount    = subject.topics.filter(t => availableSlugs.has(topicSlug(t.name))).length;
+  const userCompleted = progress?.completed ?? 0;
+  const userPct       = progress?.pct ?? 0;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background, paddingTop: topPad }]}>
@@ -60,15 +68,20 @@ export default function SubjectScreen() {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[styles.subjectDesc, { color: colors.textSecondary }]}>{subject.desc}</Text>
+
+            {/* User progress bar */}
             <View style={[styles.progressBg, { backgroundColor: colors.surfaceBorder }]}>
               <View style={[styles.progressFill, {
-                width: subject.topics.length > 0 ? `${Math.round((notesCount / subject.topics.length) * 100)}%` as any : '0%',
+                width: userPct > 0 ? `${userPct}%` as any : '0%',
                 backgroundColor: color,
               }]} />
             </View>
+
             <View style={styles.metaRow}>
               <Text style={[styles.progressText, { color: colors.textSecondary }]}>
-                {notesCount}/{subject.topics.length} notes available
+                {userCompleted > 0
+                  ? `${userCompleted}/${subject.topics.length} studied (${userPct}%)`
+                  : `${notesCount}/${subject.topics.length} notes available`}
               </Text>
               {subject.examTypes.map(e => (
                 <View key={e} style={[styles.examBadge, { backgroundColor: `${color}22` }]}>
@@ -76,6 +89,13 @@ export default function SubjectScreen() {
                 </View>
               ))}
             </View>
+
+            {/* Show both available and studied when we have user progress */}
+            {userCompleted > 0 && (
+              <Text style={[styles.availableText, { color: colors.textSecondary }]}>
+                {notesCount} notes available
+              </Text>
+            )}
           </View>
         </View>
 
@@ -110,30 +130,40 @@ export default function SubjectScreen() {
           </View>
         ) : (
           filteredTopics.map((t, i) => {
-            const slug     = topicSlug(t.name);
-            const hasNotes = availableSlugs.has(slug);
+            const slug      = topicSlug(t.name);
+            const hasNotes  = availableSlugs.has(slug);
+            const done      = progress?.completedSlugs.has(slug) ?? false;
             return (
               <TouchableOpacity
                 key={i}
-                style={[styles.topicCard, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}
+                style={[
+                  styles.topicCard,
+                  { backgroundColor: colors.surface, borderColor: done ? color : colors.surfaceBorder },
+                  done && { borderLeftWidth: 3 },
+                ]}
                 activeOpacity={0.8}
                 onPress={() => router.push({ pathname: '/lesson', params: { subject: subjectId, topic: slug } })}
               >
                 <View style={styles.topicInfo}>
                   <View style={styles.topicNameRow}>
                     <Text style={[styles.topicName, { color: colors.text }]}>{t.name}</Text>
-                    {hasNotes && (
+                    {hasNotes && !done && (
                       <View style={[styles.notesBadge, { backgroundColor: `${color}22` }]}>
                         <Text style={[styles.notesBadgeText, { color }]}>Notes</Text>
+                      </View>
+                    )}
+                    {done && (
+                      <View style={[styles.notesBadge, { backgroundColor: colors.accentDim }]}>
+                        <Text style={[styles.notesBadgeText, { color: colors.accent }]}>Done</Text>
                       </View>
                     )}
                   </View>
                   <Text style={[styles.topicDesc, { color: colors.textSecondary }]}>{t.desc}</Text>
                 </View>
                 <Ionicons
-                  name={hasNotes ? 'book-outline' : 'arrow-forward-circle-outline'}
+                  name={done ? 'checkmark-circle' : (hasNotes ? 'book-outline' : 'arrow-forward-circle-outline')}
                   size={24}
-                  color={hasNotes ? color : colors.textSecondary}
+                  color={done ? colors.accent : (hasNotes ? color : colors.textSecondary)}
                 />
               </TouchableOpacity>
             );
@@ -160,6 +190,7 @@ const styles = StyleSheet.create({
   metaRow:        { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   examBadge:      { paddingHorizontal: 7, paddingVertical: 2, borderRadius: Radius.full },
   examBadgeText:  { fontSize: 9, fontFamily: Fonts.bold, letterSpacing: 0.3 },
+  availableText:  { fontSize: 11, fontFamily: Fonts.regular, marginTop: 3 },
   searchBar: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
     borderRadius: Radius.md, borderWidth: 1, paddingHorizontal: Spacing.md,

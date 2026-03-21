@@ -1,29 +1,27 @@
-name: Scrape & Update Content
+name: Update Lesson Content
 
 on:
   schedule:
-    - cron: '0 2 * * 0'
+    - cron: '0 3 * * 0'
   workflow_dispatch:
     inputs:
       subject:
         description: 'Subject to scrape (leave blank for all)'
         required: false
         default: ''
-      exam_type:
-        description: 'Exam type: jamb, waec, neco, common_entrance, all'
+      crawl:
+        description: 'Use full-site crawl mode? (true/false)'
         required: false
-        default: 'all'
+        default: 'false'
 
 jobs:
-  scrape-content:
+  update-content:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -31,121 +29,66 @@ jobs:
           python-version: '3.12'
 
       - name: Install Python dependencies
-        run: |
-          pip install requests beautifulsoup4 lxml
-
-      - name: Create output directories
-        run: |
-          mkdir -p Pages/lessons
-          mkdir -p Pages/questions
-          mkdir -p Pages/images
-          mkdir -p assets/scraped
+        run: pip install requests beautifulsoup4 lxml
 
       - name: Scrape lesson content
         run: |
-          python3 scripts/scrape_content.py
+          ARGS=""
+          if [ -n "${{ github.event.inputs.subject }}" ]; then
+            ARGS="$ARGS --subject ${{ github.event.inputs.subject }}"
+          fi
+          if [ "${{ github.event.inputs.crawl }}" = "true" ]; then
+            ARGS="$ARGS --crawl"
+          fi
+          python3 scripts/scrape_content.py $ARGS
         continue-on-error: true
 
-      - name: Scrape CBT past questions
+      - name: Merge notes from multiple sources
+        run: python3 scripts/merge_notes.py
+        continue-on-error: true
+
+      - name: Build lessonsData JSON
+        run: python3 scripts/build_lessons_data.py
+        continue-on-error: true
+
+      - name: Upload content to Supabase Storage
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
-          python3 scripts/scrape_cbt.py
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_KEY" ]; then
+            echo "⚠️  SUPABASE_URL / SUPABASE_SERVICE_KEY secrets not set — skipping upload"
+            echo "Add these secrets in GitHub → Settings → Secrets → Actions"
+          else
+            python3 scripts/upload_content.py
+          fi
         continue-on-error: true
 
-      - name: Build lessonsData from scraped files
-        run: |
-          python3 scripts/build_lessons_data.py
-        continue-on-error: true
-
-      - name: Check for changes
-        id: changes
+      - name: Commit updated questions bank only
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          if git diff --quiet; then
-            echo "changed=false" >> $GITHUB_OUTPUT
+          git add cbt_questions.json || true
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update questions bank [skip ci]"
+            git push
           else
-            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "No question bank changes to commit"
           fi
-
-      - name: Commit and push updated content
-        if: steps.changes.outputs.changed == 'true'
-        run: |
-          git add lib/lessonsData.ts cbt_questions.json Pages/ assets/scraped/ || true
-          git commit -m "chore: auto-update scraped content [skip ci]"
-          git push
+        continue-on-error: true
 
       - name: Summary
         run: |
-          echo "## Scraping Complete" >> $GITHUB_STEP_SUMMARY
+          echo "## Content Update Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ -f lib/lessonsData.ts ]; then
             LESSON_COUNT=$(grep -c '"title"' lib/lessonsData.ts || echo 0)
-            echo "- Lesson topics updated: ~${LESSON_COUNT}" >> $GITHUB_STEP_SUMMARY
+            echo "- Lesson topics compiled: ~${LESSON_COUNT}" >> $GITHUB_STEP_SUMMARY
           fi
           if [ -f cbt_questions.json ]; then
             Q_COUNT=$(grep -c '"question"' cbt_questions.json || echo 0)
             echo "- Questions in bank: ~${Q_COUNT}" >> $GITHUB_STEP_SUMMARY
           fi
-
-  scrape-images:
-    runs-on: ubuntu-latest
-    needs: scrape-content
-    if: always()
-    timeout-minutes: 30
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install dependencies
-        run: pip install requests beautifulsoup4 Pillow
-
-      - name: Download subject images
-        run: |
-          python3 - <<'EOF'
-          import requests, os, json
-          from pathlib import Path
-
-          img_dir = Path("assets/scraped")
-          img_dir.mkdir(parents=True, exist_ok=True)
-
-          subjects = {
-            "mathematics": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Simple_algebra_equation.svg/400px-Simple_algebra_equation.svg.png",
-            "physics": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Physicist.jpg/400px-Physicist.jpg",
-            "chemistry": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Sodium_chloride_crystal.png/400px-Sodium_chloride_crystal.png",
-            "biology": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Cell_membrane_detailed_diagram_en.svg/400px-Cell_membrane_detailed_diagram_en.svg.png",
-            "english": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Flag_of_the_United_Kingdom.svg/400px-Flag_of_the_United_Kingdom.svg.png",
-          }
-
-          for name, url in subjects.items():
-            out = img_dir / f"{name}.png"
-            if not out.exists():
-              try:
-                r = requests.get(url, timeout=15)
-                if r.status_code == 200:
-                  out.write_bytes(r.content)
-                  print(f"Downloaded {name}")
-              except Exception as e:
-                print(f"Failed {name}: {e}")
-
-          print("Image download complete")
-          EOF
-        continue-on-error: true
-
-      - name: Commit images if changed
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add assets/scraped/ || true
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: update scraped images [skip ci]"
-            git push
-          fi
-        continue-on-error: true
+          echo "- Lessons uploaded to Supabase Storage (no rebuild triggered)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> App fetches updated content on next launch via **EXPO_PUBLIC_LESSONS_URL**" >> $GITHUB_STEP_SUMMARY

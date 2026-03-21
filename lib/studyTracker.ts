@@ -129,3 +129,43 @@ export async function isTopicCompleted(subject: string, slug: string): Promise<b
   const completed = await getOrSet<string[]>(KEYS.COMPLETED, []);
   return completed.includes(`${subject}:${slug}`);
 }
+
+export type SubjectProgress = {
+  completed: number;
+  total: number;
+  pct: number;
+  completedSlugs: Set<string>;
+};
+
+export async function getSubjectProgress(subjectId: string, totalTopics: number): Promise<SubjectProgress> {
+  const completed = await getOrSet<string[]>(KEYS.COMPLETED, []);
+  const prefix = `${subjectId}:`;
+  const completedSlugs = new Set(
+    completed.filter(k => k.startsWith(prefix)).map(k => k.slice(prefix.length))
+  );
+  const count = completedSlugs.size;
+  return {
+    completed: count,
+    total: totalTopics,
+    pct: totalTopics > 0 ? Math.round((count / totalTopics) * 100) : 0,
+    completedSlugs,
+  };
+}
+
+export async function getAllSubjectsProgress(): Promise<Record<string, SubjectProgress>> {
+  const completed = await getOrSet<string[]>(KEYS.COMPLETED, []);
+  const map: Record<string, Set<string>> = {};
+  for (const key of completed) {
+    const colonIdx = key.indexOf(':');
+    if (colonIdx === -1) continue;
+    const subj = key.slice(0, colonIdx);
+    const slug = key.slice(colonIdx + 1);
+    if (!map[subj]) map[subj] = new Set();
+    map[subj].add(slug);
+  }
+  const result: Record<string, SubjectProgress> = {};
+  for (const [subj, slugs] of Object.entries(map)) {
+    result[subj] = { completed: slugs.size, total: 0, pct: 0, completedSlugs: slugs };
+  }
+  return result;
+}

@@ -12,6 +12,15 @@ import { useAuth } from '@/context/AuthContext';
 import { useUserStats } from '@/hooks/useUserStats';
 import { useRouter } from 'expo-router';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 const SESSION_DURATIONS = ['15 min', '30 min', '45 min', '60 min', '90 min'];
 const TARGET_SCORES = ['200/400', '220/400', '240/400', '260/400', '280/400', '300/400', '320/400', '340/400', '360/400'];
@@ -71,12 +80,47 @@ export default function ProfileScreen() {
     });
   }, []);
 
+  const scheduleOrCancelReminder = useCallback(async (enabled: boolean) => {
+    if (Platform.OS === 'web') return;
+    try {
+      await Notifications.cancelAllScheduledNotificationsAsync();
+      if (!enabled) return;
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission Required',
+          'Please allow notifications in your device settings to receive study reminders.',
+        );
+        return;
+      }
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: 'Time to study! 📚',
+          body: 'Keep your streak going — review a lesson or take a mock test today.',
+          data: { screen: 'home' },
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DAILY,
+          hour: 19,
+          minute: 0,
+          repeats: true,
+        } as any,
+      });
+    } catch {}
+  }, []);
+
   const savePrefs = useCallback(async (next: Prefs) => {
     setPrefs(next);
     setSavingPrefs(true);
     await AsyncStorage.setItem(PREFS_KEY, JSON.stringify(next));
     setSavingPrefs(false);
   }, []);
+
+  const handleNotificationsToggle = useCallback(async (v: boolean) => {
+    const next = { ...prefs, notifications: v };
+    await savePrefs(next);
+    await scheduleOrCancelReminder(v);
+  }, [prefs, savePrefs, scheduleOrCancelReminder]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -161,7 +205,7 @@ export default function ProfileScreen() {
           <Text style={[styles.settingLabel, { color: colors.text }]}>Daily Reminders</Text>
           <Switch
             value={prefs.notifications}
-            onValueChange={v => savePrefs({ ...prefs, notifications: v })}
+            onValueChange={handleNotificationsToggle}
             trackColor={{ false: colors.surfaceBorder, true: colors.accent }}
             thumbColor="#fff"
           />

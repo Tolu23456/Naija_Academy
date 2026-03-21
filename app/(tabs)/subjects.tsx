@@ -2,11 +2,12 @@ import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Platform, TextInp
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { useTheme } from '@/context/ThemeContext';
 import { SUBJECTS } from '@/lib/subjectsData';
 import { getTopicSlugs } from '@/lib/lessonsData';
+import { getAllSubjectsProgress } from '@/lib/studyTracker';
 
 const examFocus = [
   { id: 'JAMB', name: 'JAMB UTME',   colorKey: 'accent'  as const, bgKey: 'accentDim'  as const },
@@ -21,6 +22,24 @@ export default function SubjectsScreen() {
   const [query, setQuery] = useState('');
   const topPad    = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : 0;
+
+  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    getAllSubjectsProgress().then(data => {
+      const pct: Record<string, number> = {};
+      for (const subj of SUBJECTS) {
+        const info = data[subj.id];
+        const total = subj.topics.length;
+        if (info && total > 0) {
+          pct[subj.id] = Math.round((info.completed / total) * 100);
+        } else {
+          pct[subj.id] = 0;
+        }
+      }
+      setProgressMap(pct);
+    });
+  }, []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -91,6 +110,7 @@ export default function SubjectsScreen() {
           const color       = colors[subject.colorKey];
           const bg          = colors[subject.bgKey];
           const lessonCount = getTopicSlugs(subject.id).length;
+          const pct         = progressMap[subject.id] ?? 0;
           return (
             <TouchableOpacity
               key={subject.id}
@@ -109,13 +129,20 @@ export default function SubjectsScreen() {
                       <Text style={[styles.badgeText, { color }]}>{lessonCount} notes</Text>
                     </View>
                   )}
+                  {pct > 0 && (
+                    <View style={[styles.badge, { backgroundColor: colors.accentDim }]}>
+                      <Text style={[styles.badgeText, { color: colors.accent }]}>{pct}%</Text>
+                    </View>
+                  )}
                 </View>
                 <Text style={[styles.subjectDesc, { color: colors.textSecondary }]}>{subject.desc}</Text>
                 <View style={[styles.progressBarBg, { backgroundColor: colors.surfaceBorder }]}>
-                  <View style={[styles.progressBarFill, { width: '0%', backgroundColor: color }]} />
+                  <View style={[styles.progressBarFill, { width: `${pct}%` as any, backgroundColor: color }]} />
                 </View>
                 <Text style={[styles.subjectMeta, { color: colors.textSecondary }]}>
-                  {subject.topics.length} topics · {subject.examTypes.join(' · ')}
+                  {pct > 0
+                    ? `${pct}% studied · ${subject.topics.length} topics · ${subject.examTypes.join(' · ')}`
+                    : `${subject.topics.length} topics · ${subject.examTypes.join(' · ')}`}
                 </Text>
                 {matchedTopics[subject.id] && (
                   <View style={styles.matchedTopics}>
