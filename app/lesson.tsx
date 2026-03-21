@@ -5,23 +5,31 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
-  ActivityIndicator,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useEffect } from 'react';
 import { Colors, Fonts, Spacing, Radius } from '@/constants/theme';
 import { getLesson } from '@/lib/lessonsData';
 import LessonHTML from '@/components/LessonHTML';
+import { recordLessonView } from '@/lib/studyTracker';
 
 export default function LessonScreen() {
   const { subject, topic } = useLocalSearchParams<{ subject: string; topic: string }>();
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const topPad = Platform.OS === 'web' ? 67 : insets.top;
+  const router  = useRouter();
+  const insets  = useSafeAreaInsets();
+  const topPad  = Platform.OS === 'web' ? 67 : insets.top;
 
-  const lesson = subject && topic ? getLesson(subject, topic) : null;
+  const lesson       = subject && topic ? getLesson(subject, topic) : null;
   const displayTitle = lesson?.title ?? topic?.replace(/-/g, ' ') ?? 'Lesson';
+
+  // Track lesson view for streak + topicsDone
+  useEffect(() => {
+    if (lesson && subject && topic) {
+      recordLessonView(subject, topic, lesson.title).catch(() => {});
+    }
+  }, [lesson?.title]);
 
   return (
     <View style={[styles.container, { paddingTop: topPad }]}>
