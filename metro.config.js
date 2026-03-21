@@ -12,7 +12,14 @@ config.resolver.assetExts = [
 
 config.server = {
   ...config.server,
-  enhanceMiddleware: (middleware) => middleware,
+  enhanceMiddleware: (middleware) => {
+    return (req, res, next) => {
+      if (req.headers.origin && req.headers.origin.includes('.replit.dev')) {
+        delete req.headers.origin;
+      }
+      middleware(req, res, next);
+    };
+  },
 };
 
 module.exports = config;
