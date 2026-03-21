@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div class="lesson-container">
+
+<div class="glass-card padding-2 mb-2">
+  <h1 class="text-accent mb-1">Number and Numeration</h1>
+  <p class="text-secondary">Master number systems, fractions, indices, surds, and logarithms — all heavily tested in JAMB UTME and WAEC Mathematics.</p>
+</div>
+
+<div class="glass-card padding-2 mb-2">
+  <h2 class="text-accent mb-1">1. Number Bases</h2>
+  <p>Numbers can be expressed in different bases. The most common are:</p>
+  <div class="grid-2 mt-1">
+    <div class="bg-dark rounded p-2">
+      <h4 class="text-blue">Base 10 (Decimal)</h4>
+      <p>Digits: 0–9. Our everyday system.<br/>e.g., 256<sub>10</sub></p>
+    </div>
+    <div class="bg-dark rounded p-2">
+      <h4 class="text-blue">Base 2 (Binary)</h4>
+      <p>Digits: 0, 1. Used in computers.<br/>e.g., 11001<sub>2</sub></p>
+    </div>
+    <div class="bg-dark rounded p-2">
+      <h4 class="text-blue">Base 8 (Octal)</h4>
+      <p>Digits: 0–7.<br/>e.g., 374<sub>8</sub></p>
+    </div>
+    <div class="bg-dark rounded p-2">
+      <h4 class="text-blue">Base 16 (Hexadecimal)</h4>
+      <p>Digits: 0–9, A–F.<br/>e.g., 2AF<sub>16</sub></p>
+    </div>
+  </div>
+
+  <h4 class="text-warning mt-1">Converting to Base 10</h4>
+  <p>Multiply each digit by its positional value (base raised to position power) and add:</p>
+  <p><strong>Example:</strong> 1101<sub>2</sub> = 1×2³ + 1×2² + 0×2¹ + 1×2⁰ = 8 + 4 + 0 + 1 = <strong class="text-accent">13</strong></p>
+  <p><strong>Example:</strong> 374<sub>8</sub> = 3×8² + 7×8¹ + 4×8⁰ = 192 + 56 + 4 = <strong class="text-accent">252</strong></p>
+
+  <h4 class="text-warning mt-1">Converting from Base 10</h4>
+  <p>Divide repeatedly by the target base and read remainders bottom-up:</p>
+  <p><strong>Example:</strong> 25<sub>10</sub> to base 2:</p>
+  <ul>
+    <li>25 ÷ 2 = 12 remainder <strong>1</strong></li>
+    <li>12 ÷ 2 = 6 remainder <strong>0</strong></li>
+    <li>6 ÷ 2 = 3 remainder <strong>0</strong></li>
+    <li>3 ÷ 2 = 1 remainder <strong>1</strong></li>
+    <li>1 ÷ 2 = 0 remainder <strong>1</strong></li>
+  </ul>
+  <p>Reading upward: 25<sub>10</sub> = <strong class="text-accent">11001<sub>2</sub></strong></p>
+</div>
+
+<div class="glass-card padding-2 mb-2">
+  <h2 class="text-accent mb-1">2. Fractions, Decimals and Percentages</h2>
+
+  <h4 class="text-warning">Types of Fractions</h4>
+  <ul>
+    <li><strong>Proper fraction:</strong> numerator &lt; denominator, e.g., ³⁄₅</li>
+    <li><strong>Improper fraction:</strong> numerator &gt; denominator, e.g., ⁷⁄₄</li>
+    <li><strong>Mixed number:</strong> whole + fraction, e.g., 1¾</li>
+  </ul>
+
+  <h4 class="text-warning mt-1">Fraction Operations</h4>
+  <div class="grid-2 mt-1">
+    <div class="bg-dark rounded p-2">
+      <h4 class="text-blue">Addition/Subtraction</h4>
+      <p>Find LCM of denominators:<br/>½ + ⅓ = 3/6 + 2/6 = <strong>5/6</strong></p>
+    </div>
+    <div class="bg-dark rounded p-2">
+      <h4 class="text-blue">Multiplication</h4>
+      <p>Multiply straight across:<br/>²⁄₃ × ³⁄₄ = 6/12 = <strong>½</strong></p>
+    </div>
+    <div class="bg-dark rounded p-2">
+      <h4 class="text-blue">Division</h4>
+      <p>Multiply by the reciprocal:<br/>²⁄₃ ÷ ⁴⁄₅ = ²⁄₃ × ⁵⁄₄ = <strong>10/12 = 5/6</strong></p>
+    </div>
+    <div class="bg-dark rounded p-2">
+      <h4 class="text-blue">To Decimal</h4>
+      <p>Divide numerator by denominator:<br/>¾ = 3 ÷ 4 = <strong>0.75</strong></p>
+    </div>
+  </div>
+
+  <h4 class="text-warning mt-1">Percentages</h4>
+  <ul>
+    <li>Percentage = (Part ÷ Whole) × 100</li>
+    <li>% increase = (Increase ÷ Original) × 100</li>
+    <li>% decrease = (Decrease ÷ Original) × 100</li>
+  </ul>
+  <p><strong>Example:</strong> A shirt costs ₦2000, reduced to ₦1700. % decrease = (300/2000) × 100 = <strong class="text-accent">15%</strong></p>
+</div>
+
+<div class="glass-card padding-2 mb-2">
+  <h2 class="text-accent mb-1">3. Indices (Laws of Indices)</h2>
+  <table>
+    <tr><th>Law</th><th>Rule</th><th>Example</th></tr>
+    <tr><td>Multiplication</td><td>aᵐ × aⁿ = aᵐ⁺ⁿ</td><td>2³ × 2⁴ = 2⁷ = 128</td></tr>
+    <tr><td>Division</td><td>aᵐ ÷ aⁿ = aᵐ⁻ⁿ</td><td>3⁵ ÷ 3² = 3³ = 27</td></tr>
+    <tr><td>Power of a power</td><td>(aᵐ)ⁿ = aᵐⁿ</td><td>(2³)² = 2⁶ = 64</td></tr>
+    <tr><td>Zero index</td><td>a⁰ = 1</td><td>7⁰ = 1</td></tr>
+    <tr><td>Negative index</td><td>a⁻ⁿ = 1/aⁿ</td><td>2⁻³ = 1/8</td></tr>
+    <tr><td>Fractional index</td><td>a^(1/n) = ⁿ√a</td><td>8^(1/3) = ∛8 = 2</td></tr>
+    <tr><td>Fractional index</td><td>a^(m/n) = (ⁿ√a)ᵐ</td><td>8^(2/3) = (∛8)² = 4</td></tr>
+  </table>
+</div>
+
+<div class="glass-card padding-2 mb-2">
+  <h2 class="text-accent mb-1">4. Logarithms</h2>
+  <p>If aˣ = N, then log<sub>a</sub>N = x. Logarithm is the inverse of exponentiation.</p>
+
+  <h4 class="text-warning mt-1">Laws of Logarithms</h4>
+  <table>
+    <tr><th>Law</th><th>Rule</th></tr>
+    <tr><td>Product</td><td>log(AB) = logA + logB</td></tr>
+    <tr><td>Quotient</td><td>log(A/B) = logA − logB</td></tr>
+    <tr><td>Power</td><td>log(Aⁿ) = n × logA</td></tr>
+    <tr><td>Base change</td><td>log<sub>a</sub>b = log b / log a</td></tr>
+    <tr><td>Identity</td><td>log<sub>a</sub>a = 1</td></tr>
+    <tr><td>Zero</td><td>log<sub>a</sub>1 = 0</td></tr>
+  </table>
+
+  <h4 class="text-warning mt-1">Using Log Tables</h4>
+  <p>For JAMB/WAEC without a calculator, use 4-figure tables:</p>
+  <ul>
+    <li>Express number in standard form: N = A × 10ⁿ (1 ≤ A &lt; 10)</li>
+    <li>log N = log A + n (find log A from tables)</li>
+    <li><strong>Example:</strong> log 256 = log(2.56 × 10²) = log 2.56 + 2 = 0.4082 + 2 = <strong class="text-accent">2.4082</strong></li>
+  </ul>
+</div>
+
+<div class="glass-card padding-2 mb-2">
+  <h2 class="text-accent mb-1">5. Surds</h2>
+  <p>A surd is an irrational root that cannot be simplified to a whole number or fraction, e.g., √2, √3, √5.</p>
+
+  <h4 class="text-warning mt-1">Rules for Surds</h4>
+  <ul>
+    <li>√(ab) = √a × √b</li>
+    <li>√(a/b) = √a / √b</li>
+    <li>a√c + b√c = (a+b)√c</li>
+    <li>(√a + √b)(√a − √b) = a − b (difference of two squares)</li>
+  </ul>
+
+  <h4 class="text-warning mt-1">Rationalising the Denominator</h4>
+  <p>Remove the surd from the denominator by multiplying by the conjugate:</p>
+  <p><strong>Example:</strong> 3/(√5 + 1) × (√5 − 1)/(√5 − 1) = 3(√5 − 1)/(5 − 1) = 3(√5 − 1)/4</p>
+
+  <div class="grid-2 mt-1">
+    <div class="bg-dark rounded p-2">
+      <h4 class="text-blue">Simplifying Surds</h4>
+      <p>√48 = √(16 × 3) = 4√3<br/>√75 = √(25 × 3) = 5√3<br/>√98 = √(49 × 2) = 7√2</p>
+    </div>
+    <div class="bg-dark rounded p-2">
+      <h4 class="text-blue">Adding Surds</h4>
+      <p>3√2 + 5√2 = 8√2<br/>√12 + √27 = 2√3 + 3√3 = 5√3</p>
+    </div>
+  </div>
+</div>
+
+<div class="glass-card padding-2 mb-2">
+  <h2 class="text-accent mb-1">6. Ratio and Proportion</h2>
+  <h4 class="text-warning">Ratio</h4>
+  <p>A ratio compares two or more quantities of the same type. Express in simplest form:</p>
+  <p><strong>Example:</strong> Share ₦12,000 in ratio 3:1:2 (total parts = 6)<br/>
+  → 3/6 × 12000 = <strong>₦6000</strong>, 1/6 × 12000 = <strong>₦2000</strong>, 2/6 × 12000 = <strong>₦4000</strong></p>
+
+  <h4 class="text-warning mt-1">Proportion</h4>
+  <div class="grid-2 mt-1">
+    <div class="bg-dark rounded p-2">
+      <h4 class="text-blue">Direct Proportion</h4>
+      <p>As x increases, y increases. x/y = k (constant)<br/>If 5 pens cost ₦250, 8 pens cost: 8 × 50 = <strong>₦400</strong></p>
+    </div>
+    <div class="bg-dark rounded p-2">
+      <h4 class="text-blue">Inverse Proportion</h4>
+      <p>As x increases, y decreases. xy = k<br/>5 workers finish in 12 days → 3 workers take: (5×12)/3 = <strong>20 days</strong></p>
+    </div>
+  </div>
+</div>
+
+<div class="glass-card padding-2 mb-2">
+  <h2 class="text-accent mb-1">7. HCF and LCM</h2>
+  <div class="grid-2">
+    <div class="bg-dark rounded p-2">
+      <h4 class="text-blue">HCF (Highest Common Factor)</h4>
+      <p>The largest number that divides all given numbers exactly.</p>
+      <p>HCF of 12 and 18:<br/>12 = 2² × 3<br/>18 = 2 × 3²<br/>HCF = 2 × 3 = <strong class="text-accent">6</strong></p>
+    </div>
+    <div class="bg-dark rounded p-2">
+      <h4 class="text-blue">LCM (Lowest Common Multiple)</h4>
+      <p>The smallest number that is a multiple of all given numbers.</p>
+      <p>LCM of 12 and 18:<br/>LCM = 2² × 3² = <strong class="text-accent">36</strong></p>
+    </div>
+  </div>
+</div>
+
+<div class="glass-card padding-2 mb-2">
+  <h2 class="text-accent mb-1">8. Standard Form</h2>
+  <p>Standard form (scientific notation): N = A × 10ⁿ where 1 ≤ A &lt; 10</p>
+  <table>
+    <tr><th>Number</th><th>Standard Form</th></tr>
+    <tr><td>6 500 000</td><td>6.5 × 10⁶</td></tr>
+    <tr><td>0.00032</td><td>3.2 × 10⁻⁴</td></tr>
+    <tr><td>450</td><td>4.5 × 10²</td></tr>
+    <tr><td>0.0071</td><td>7.1 × 10⁻³</td></tr>
+  </table>
+</div>
+
+<div class="glass-card padding-2 mb-2">
+  <h2 class="text-accent mb-1">9. Number Sequences and Series</h2>
+  <h4 class="text-warning">Arithmetic Progression (AP)</h4>
+  <ul>
+    <li>Sequence with constant difference (d): a, a+d, a+2d, ...</li>
+    <li>nth term: Tₙ = a + (n−1)d</li>
+    <li>Sum of n terms: Sₙ = n/2 × [2a + (n−1)d]</li>
+  </ul>
+  <p><strong>Example:</strong> Find 10th term of 3, 7, 11, 15, ... → a=3, d=4, T₁₀ = 3+(9×4) = <strong class="text-accent">39</strong></p>
+
+  <h4 class="text-warning mt-1">Geometric Progression (GP)</h4>
+  <ul>
+    <li>Sequence with constant ratio (r): a, ar, ar², ...</li>
+    <li>nth term: Tₙ = arⁿ⁻¹</li>
+    <li>Sum: Sₙ = a(rⁿ − 1)/(r − 1) for r ≠ 1</li>
+  </ul>
+  <p><strong>Example:</strong> Find 5th term of 2, 6, 18, ... → a=2, r=3, T₅ = 2×3⁴ = <strong class="text-accent">162</strong></p>
+</div>
+
+<div class="glass-card padding-2 mb-2">
+  <h2 class="text-accent mb-1">JAMB Quick Tips</h2>
+  <ul>
+    <li class="text-warning"><strong>Number bases:</strong> Always verify by converting back to base 10</li>
+    <li class="text-warning"><strong>Fractions:</strong> Always simplify your final answer</li>
+    <li class="text-warning"><strong>Indices:</strong> Negative powers flip to the denominator</li>
+    <li class="text-warning"><strong>Logs:</strong> log 1 = 0, log of base itself = 1 — memorise these</li>
+    <li class="text-warning"><strong>Surds:</strong> Rationalise denominators — very common exam question type</li>
+    <li class="text-warning"><strong>Ratio:</strong> Find total parts first before sharing</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>
