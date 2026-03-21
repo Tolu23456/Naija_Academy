@@ -91,8 +91,6 @@ function LoadingScreen() {
 }
 
 export default function RootLayout() {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
   const [fontsLoaded, fontError] = useFonts({
     ...Ionicons.font,
     ...MaterialCommunityIcons.font,
@@ -105,28 +103,21 @@ export default function RootLayout() {
   useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 350,
-        useNativeDriver: nativeDriver,
-      }).start();
     }
   }, [fontsLoaded, fontError]);
 
   if (!fontsLoaded && !fontError) return <LoadingScreen />;
 
   return (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            <AuthProvider>
-              <AppNavigator />
-            </AuthProvider>
-          </ThemeProvider>
-        </QueryClientProvider>
-      </GestureHandlerRootView>
-    </Animated.View>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AuthProvider>
+            <AppNavigator />
+          </AuthProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
 
