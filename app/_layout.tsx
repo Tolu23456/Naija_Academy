@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { AdminProvider, useAdmin } from '@/context/AdminContext';
 import { isOnboardingDone } from '@/lib/onboarding';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
@@ -24,6 +25,7 @@ const queryClient = new QueryClient();
 function AppNavigator() {
   const { isDark, colors } = useTheme();
   const { user, loading } = useAuth();
+  const { isAdminVerified } = useAdmin();
   const router = useRouter();
 
   useEffect(() => {
@@ -34,13 +36,18 @@ function AppNavigator() {
       return;
     }
 
+    if (isAdminVerified) {
+      router.replace('/admin');
+      return;
+    }
+
     if (isSupabaseConfigured && !user) {
       router.replace('/auth');
       return;
     }
 
     router.replace('/(tabs)');
-  }, [user, loading]);
+  }, [user, loading, isAdminVerified]);
 
   return (
     <>
@@ -55,6 +62,7 @@ function AppNavigator() {
       >
         <Stack.Screen name="auth" options={{ headerShown: false, animation: 'fade' }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="admin" options={{ headerShown: false, animation: 'fade' }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'fade' }} />
         <Stack.Screen name="cbt" options={{ headerShown: false, presentation: 'fullScreenModal', animation: Platform.OS === 'web' ? 'fade' : 'slide_from_bottom' }} />
         <Stack.Screen name="exam-setup" options={{ headerShown: false, presentation: 'modal', animation: Platform.OS === 'web' ? 'fade' : 'slide_from_bottom' }} />
@@ -112,9 +120,11 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <AuthProvider>
-            <AppNavigator />
-          </AuthProvider>
+          <AdminProvider>
+            <AuthProvider>
+              <AppNavigator />
+            </AuthProvider>
+          </AdminProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>

@@ -1,20 +1,22 @@
 import React, { createContext, useContext, useState } from 'react';
 
-const ADMIN_EMAIL   = 'naijacdm@gmail.com';
-const ADMIN_PASSKEY = '001002003004005';
+const ADMIN_EMAIL    = 'naijacdm@gmail.com';
+const ADMIN_PASSWORD = 'Esclapes123#';
 
 type AdminContextType = {
-  isAdminEmail:     (email: string) => boolean;
-  isAdminVerified:  boolean;
-  verifyPasskey:    (key: string) => boolean;
+  isAdminEmail:      (email: string) => boolean;
+  isAdminCredentials:(email: string, password: string) => boolean;
+  isAdminVerified:   boolean;
+  setAdminVerified:  (v: boolean) => void;
   clearAdminSession: () => void;
 };
 
 const AdminContext = createContext<AdminContextType>({
-  isAdminEmail:     () => false,
-  isAdminVerified:  false,
-  verifyPasskey:    () => false,
-  clearAdminSession: () => {},
+  isAdminEmail:       () => false,
+  isAdminCredentials: () => false,
+  isAdminVerified:    false,
+  setAdminVerified:   () => {},
+  clearAdminSession:  () => {},
 });
 
 export function AdminProvider({ children }: { children: React.ReactNode }) {
@@ -23,18 +25,21 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const isAdminEmail = (email: string) =>
     email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-  const verifyPasskey = (key: string): boolean => {
-    if (key.trim() === ADMIN_PASSKEY) {
-      setIsAdminVerified(true);
-      return true;
-    }
-    return false;
-  };
+  const isAdminCredentials = (email: string, password: string): boolean =>
+    email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase() &&
+    password === ADMIN_PASSWORD;
 
+  const setAdminVerified = (v: boolean) => setIsAdminVerified(v);
   const clearAdminSession = () => setIsAdminVerified(false);
 
   return (
-    <AdminContext.Provider value={{ isAdminEmail, isAdminVerified, verifyPasskey, clearAdminSession }}>
+    <AdminContext.Provider value={{
+      isAdminEmail,
+      isAdminCredentials,
+      isAdminVerified,
+      setAdminVerified,
+      clearAdminSession,
+    }}>
       {children}
     </AdminContext.Provider>
   );

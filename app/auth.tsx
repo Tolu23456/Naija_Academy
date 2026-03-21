@@ -10,6 +10,7 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
+import { useAdmin } from '@/context/AdminContext';
 
 type Mode = 'signin' | 'signup';
 
@@ -18,6 +19,7 @@ export default function AuthScreen() {
   const router = useRouter();
   const { colors } = useTheme();
   const { signIn, signUp } = useAuth();
+  const { isAdminCredentials, setAdminVerified } = useAdmin();
 
   const [mode, setMode] = useState<Mode>('signin');
   const [username, setUsername] = useState('');
@@ -52,6 +54,12 @@ export default function AuthScreen() {
 
     setLoading(true);
     try {
+      if (mode === 'signin' && isAdminCredentials(email.trim(), password)) {
+        setAdminVerified(true);
+        router.replace('/admin');
+        return;
+      }
+
       let err: string | null = null;
       if (mode === 'signin') {
         err = await signIn(email.trim(), password);
