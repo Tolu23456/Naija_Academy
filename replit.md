@@ -44,6 +44,15 @@ scripts/             # Python scrapers for content pipeline
 
 The app runs via the "Start application" workflow using `npm start` which starts Expo on port 5000.
 
+## Content / Lessons Pipeline
+
+- `Pages/{subject}/*.html` — scraped lesson HTML files (source of truth)
+- `scripts/build_lessons_data.py` — converts Pages/ HTML → `lib/lessonsData.ts`
+- Run `python3 scripts/build_lessons_data.py` after adding/renaming any HTML files
+- Topic filenames **must match** the slug the app generates: `topicName.toLowerCase().replace(/[^a-z0-9]+/g, '-')`
+- Current content coverage: Biology (5), Chemistry (5), English (4), Maths (6), Physics (7)
+- Subjects with zero scraped content: Government, Economics, Literature, Agric, Commerce, Geography, Further Maths, Accounting, CRK, IRK, Civic, Technical Drawing
+
 ## Replit Compatibility
 
 The following patches were applied to make Expo work behind Replit's proxy:
