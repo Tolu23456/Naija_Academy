@@ -4,10 +4,11 @@ An educational mobile and web app built with React Native (Expo) to help Nigeria
 
 ## Features
 
-- **Lesson Notes**: Structured study material for subjects (Mathematics, English, Physics, Chemistry, Biology, etc.)
+- **Lesson Notes**: Structured study material for 17+ subjects (Mathematics, English, Physics, Chemistry, Biology, etc.)
 - **CBT Mock Exams**: Practice questions simulating real exam environments
 - **Study Tracking**: Study streaks, JAMB Readiness scores, and recent activity
 - **Authentication**: Supabase-based auth with onboarding flow
+- **Profile Settings**: Persistent study preferences (session duration, target score, notifications) with local storage
 
 ## Tech Stack
 
@@ -15,6 +16,7 @@ An educational mobile and web app built with React Native (Expo) to help Nigeria
 - **Navigation**: Expo Router file-based routing with bottom tabs
 - **Backend/Auth**: Supabase (`@supabase/supabase-js`)
 - **State Management**: React Query (`@tanstack/react-query`) + React Context
+- **Local Storage**: AsyncStorage for study preferences persistence
 - **Math Rendering**: KaTeX
 - **Animations**: React Native Reanimated + Gesture Handler
 
@@ -37,7 +39,10 @@ lib/                 # Data files, utilities, Supabase client
   lessonsData.ts     # Pre-compiled lesson HTML content
   subjectsData.ts    # Subject/topic registry
   cbt_questions.json # Question bank
-scripts/             # Python scrapers for content pipeline
+scripts/             # Python content pipeline
+  scrape_content.py  # Full scraper: topic-based + full-site crawl mode
+  merge_notes.py     # Intelligent multi-source notes merger
+  build_lessons_data.py  # Markdown → TypeScript compiler
 ```
 
 ## Running the App
@@ -46,21 +51,84 @@ The app runs via the "Start application" workflow using `npm start` which starts
 
 ## Content / Lessons Pipeline
 
-- `Pages/{subject}/*.html` — scraped lesson HTML files (source of truth)
-- `scripts/build_lessons_data.py` — converts Pages/ HTML → `lib/lessonsData.ts`
-- Run `python3 scripts/build_lessons_data.py` after adding/renaming any HTML files
-- Topic filenames **must match** the slug the app generates: `topicName.toLowerCase().replace(/[^a-z0-9]+/g, '-')`
-- Current content coverage: Biology (5), Chemistry (5), English (4), Maths (6), Physics (7)
-- Subjects with zero scraped content: Government, Economics, Literature, Agric, Commerce, Geography, Further Maths, Accounting, CRK, IRK, Civic, Technical Drawing
+### Standard scraping (topic-by-topic):
+```
+python3 scripts/scrape_content.py                    # all subjects
+python3 scripts/scrape_content.py --subject maths    # one subject
+python3 scripts/scrape_content.py --lessons-only     # skip questions
+python3 scripts/scrape_content.py --questions-only   # skip lessons
+```
+
+### Full-site crawl (downloads ALL content from every site):
+```
+python3 scripts/scrape_content.py --crawl              # crawl all sites, all subjects
+python3 scripts/scrape_content.py --crawl --subject biology  # crawl one subject
+python3 scripts/scrape_content.py --crawl --crawl-limit 200  # limit articles per site
+```
+Sources: classnotes.ng | classbasic.com | edudelight.com (lessons)
+         myschool.ng | prepclass.com.ng (questions)
+
+### Merging notes from multiple sources:
+```
+python3 scripts/merge_notes.py               # merge all subjects
+python3 scripts/merge_notes.py --subject maths
+python3 scripts/merge_notes.py --dry-run     # preview without writing
+```
+
+### Building the app data:
+```
+python3 scripts/build_lessons_data.py
+```
+- `Pages/{subject}/*.html` — legacy scraped HTML (source)
+- `content/{subject}/{topic}.md` — new markdown-based content
+- `lib/lessonsData.ts` — compiled TypeScript output for the app
+
+### npm shortcuts:
+```
+npm run scrape           # standard scrape
+npm run scrape:crawl     # full-site crawl
+npm run merge:notes      # merge multi-source notes
+npm run build:lessons    # compile to TypeScript
+npm run build:web        # build static web export for deployment
+```
+
+## Deployment
+
+### Render
+A `render.yaml` is included. On Render:
+1. Connect this repo
+2. Render auto-detects `render.yaml`
+3. Set environment variables: `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+4. Deploy — build runs `npm install && npx expo export -p web` and serves from `dist/`
+
+### Docker
+```
+docker-compose up app-prod
+```
+Pass Supabase credentials as build args:
+```
+docker-compose build --build-arg SUPABASE_URL=... --build-arg SUPABASE_ANON_KEY=...
+```
+
+## Profile Page
+
+The profile page now has fully functional:
+- **Daily Reminders toggle** — persisted with AsyncStorage
+- **Dark Mode toggle** — applied app-wide
+- **Session Duration** — picker modal, saves to AsyncStorage
+- **Target Score** — picker modal, saves to AsyncStorage
+- **Edit Profile** — modal to update display name via Supabase
+- **Help & Support** — modal with support contacts
+- **About NaijaAcademy** — modal with app info and stats
 
 ## Replit Compatibility
 
-The following patches were applied to make Expo work behind Replit's proxy:
-1. `node_modules/@expo/cli/build/src/start/server/middleware/CorsMiddleware.js` — patched to allow `.replit.dev` and `.replit.app` origins
-2. `node_modules/@expo/cli/build/src/start/server/metro/dev-server/createEventSocket.js` — patched to allow WebSocket connections from Replit domains
-3. `metro.config.js` — updated enhanceMiddleware to strip Replit origin headers
+The following patches are applied to make Expo work behind Replit's proxy:
+1. `node_modules/@expo/cli/build/src/start/server/middleware/CorsMiddleware.js` — allows `.replit.dev`, `.replit.app`, `.repl.co` origins
+2. `node_modules/@expo/cli/build/src/start/server/metro/dev-server/createEventSocket.js` — allows WebSocket connections from Replit domains
 
 ## Configuration
 
 - Supabase credentials stored in `lib/supabase.config.json` (url + anonKey)
-- App configured for web output in `app.json` (metro bundler, static output)
+- For Render/production: use `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` env vars
+- App configured for web static output in `app.json`

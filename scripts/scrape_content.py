@@ -48,6 +48,8 @@ parser.add_argument("--subject",        default="",    help="Scrape only this su
 parser.add_argument("--questions-only", action="store_true")
 parser.add_argument("--lessons-only",   action="store_true")
 parser.add_argument("--discover",       action="store_true", help="Auto-discover subjects from websites first")
+parser.add_argument("--crawl",          action="store_true", help="Full-site crawl: download ALL content from every source site")
+parser.add_argument("--crawl-limit",    type=int, default=500, help="Max articles to crawl per site (default 500)")
 parser.add_argument("--max-questions",  type=int, default=120)
 parser.add_argument("--max-pages",      type=int, default=5)
 parser.add_argument("--delay",          type=float, default=1.2)
@@ -972,6 +974,208 @@ def merge_questions(existing: list, new_batch: list) -> list:
     return existing
 
 # ══════════════════════════════════════════════════════════════════════════════
+# FULL-SITE CRAWL MODE
+# ══════════════════════════════════════════════════════════════════════════════
+
+# Maps subject keywords found in URLs/titles to our subject keys
+SUBJECT_KEYWORD_MAP: Dict[str, str] = {
+    "mathematics":            "maths",
+    "maths":                  "maths",
+    "further-mathematics":    "further-maths",
+    "further-maths":          "further-maths",
+    "english":                "english",
+    "english-language":       "english",
+    "physics":                "physics",
+    "chemistry":              "chemistry",
+    "biology":                "biology",
+    "government":             "government",
+    "economics":              "economics",
+    "literature":             "literature",
+    "literature-in-english":  "literature",
+    "agricultural":           "agric",
+    "agric":                  "agric",
+    "commerce":               "commerce",
+    "geography":              "geography",
+    "accounting":             "account",
+    "financial-accounting":   "account",
+    "christian":              "crk",
+    "crk":                    "crk",
+    "islamic":                "irk",
+    "irk":                    "irk",
+    "civic":                  "civic",
+    "technical-drawing":      "technical-drawing",
+}
+
+# Sites with their article link selectors and content selectors
+CRAWL_SITES: List[Dict] = [
+    {
+        "name":        "classnotes.ng",
+        "start_url":   "https://classnotes.ng/",
+        "link_sel":    "a[href*='classnotes.ng']",
+        "nav_sel":     "a.nav-link, a[href*='/page/'], .pagination a",
+        "content_sel": "div.entry-content, div.post-content, article",
+        "filter":      lambda url: "classnotes.ng" in url and not any(
+                           x in url for x in ["/tag/", "/category/", "/author/", "/feed", "wp-content", "#"]
+                       ),
+    },
+    {
+        "name":        "classbasic.com",
+        "start_url":   "https://classbasic.com/",
+        "link_sel":    "a[href*='classbasic.com']",
+        "nav_sel":     "a.nav-link, a[href*='/page/'], .pagination a",
+        "content_sel": "div.entry-content, div.post-content, article",
+        "filter":      lambda url: "classbasic.com" in url and not any(
+                           x in url for x in ["/tag/", "/category/", "/author/", "/feed", "wp-content", "#"]
+                       ),
+    },
+    {
+        "name":        "edudelight.com",
+        "start_url":   "https://edudelight.com/",
+        "link_sel":    "a[href*='edudelight.com']",
+        "nav_sel":     "a.nav-link, a[href*='/page/'], .pagination a",
+        "content_sel": "div.entry-content, div.post-content, article",
+        "filter":      lambda url: "edudelight.com" in url and not any(
+                           x in url for x in ["/tag/", "/category/", "/author/", "/feed", "wp-content", "#"]
+                       ),
+    },
+]
+
+
+def detect_subject_from_url_or_title(url: str, title: str) -> Optional[str]:
+    """Try to detect which subject a page belongs to from its URL or title."""
+    combined = (url + " " + title).lower()
+    combined = re.sub(r"[^a-z0-9\-\s]", " ", combined)
+
+    # Try longest match first
+    for keyword in sorted(SUBJECT_KEYWORD_MAP.keys(), key=len, reverse=True):
+        if keyword in combined:
+            return SUBJECT_KEYWORD_MAP[keyword]
+    return None
+
+
+def extract_topic_from_title(title: str, subject_label: str) -> str:
+    """Clean up a page title into a clean topic name."""
+    title = re.sub(r"[-|–—:]\s*" + re.escape(subject_label), "", title, flags=re.I)
+    title = re.sub(r"\s*[-|–—:]\s*(notes?|waec|jamb|neco|classnotes|classbasic|edudelight)\s*$", "", title, flags=re.I)
+    title = re.sub(r"\s+(notes?|waec|jamb|neco|exam|question|answer)\s*$", "", title, flags=re.I)
+    return title.strip().title() or "Untitled"
+
+
+def crawl_site(site: Dict, limit: int, subject_filter: str = "") -> int:
+    """
+    Crawl an entire educational site, saving all discovered lessons as Markdown.
+    Returns the number of articles saved.
+    """
+    name        = site["name"]
+    start_url   = site["start_url"]
+    content_sel = site["content_sel"]
+    url_filter  = site["filter"]
+
+    print(f"\n{'='*60}")
+    print(f" CRAWL: {name}")
+    print(f"{'='*60}")
+
+    visited:    Set[str] = set()
+    queue:      List[str] = [start_url]
+    saved       = 0
+
+    while queue and len(visited) < limit:
+        url = queue.pop(0)
+        if url in visited:
+            continue
+        visited.add(url)
+
+        time.sleep(DELAY)
+        soup = get(url)
+        if not soup:
+            continue
+
+        # Discover new links from this page
+        for a in soup.find_all("a", href=True):
+            href = a["href"]
+            if not href.startswith("http"):
+                href = urllib.parse.urljoin(url, href)
+            href = href.split("#")[0].rstrip("/")
+            if href and href not in visited and url_filter(href):
+                queue.append(href)
+
+        # Skip pages that look like indexes / archives
+        if url in [start_url] or any(x in url for x in ["/page/", "?page", "?s=", "?cat="]):
+            continue
+
+        # Get page title
+        title_tag = soup.find("title") or soup.find("h1")
+        title     = clean(title_tag.get_text()) if title_tag else ""
+        if not title or len(title) < 5:
+            continue
+
+        # Detect subject
+        subj_key = detect_subject_from_url_or_title(url, title)
+        if not subj_key:
+            continue
+        if subject_filter and subj_key != subject_filter:
+            continue
+
+        subj_cfg   = ALL_SUBJECTS.get(subj_key, {})
+        subj_label = subj_cfg.get("label", subj_key)
+        topic      = extract_topic_from_title(title, subj_label)
+        topic_slug = slug(topic)
+
+        if not topic_slug or topic_slug in ("notes", "questions", "answers", "jamb", "waec"):
+            continue
+
+        # Check if already saved
+        md_path = CONTENT_DIR / subj_key / f"{topic_slug}.md"
+        if md_path.exists() and md_path.stat().st_size > 300:
+            print(f"  [SKIP] {subj_key}/{topic_slug}")
+            continue
+
+        # Extract content
+        content_el = None
+        for sel in content_sel.split(", "):
+            content_el = soup.select_one(sel.strip())
+            if content_el:
+                break
+
+        if not content_el:
+            continue
+
+        # Download all images from this page
+        for img in content_el.find_all("img"):
+            src = (
+                img.get("src") or img.get("data-src") or
+                img.get("data-lazy-src") or img.get("data-original") or ""
+            )
+            if src and not src.startswith("data:"):
+                if not src.startswith("http"):
+                    src = urllib.parse.urljoin(url, src)
+                local_path = download_resource(src, url)
+                if local_path:
+                    img["src"] = local_path  # rewrite to local path
+
+        sections = parse_content_into_sections(content_el, url, topic)
+        if not sections:
+            continue
+
+        save_lesson_markdown(subj_key, topic, sections)
+        saved += 1
+        print(f"  [SAVED] {subj_key}/{topic_slug}  ({len(sections)} sections)  ← {name}")
+
+    print(f"\n  Crawl complete: {saved} lessons saved from {name}  ({len(visited)} pages visited)")
+    return saved
+
+
+def run_full_crawl(subject_filter: str = "", limit: int = 500) -> int:
+    """Run full-site crawl across all configured sites."""
+    total = 0
+    for site in CRAWL_SITES:
+        count = crawl_site(site, limit=limit, subject_filter=subject_filter)
+        total += count
+    print(f"\n✓ Full crawl complete: {total} lessons saved across all sites")
+    return total
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # MAIN
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -981,6 +1185,24 @@ def main():
     print(f"Sites: myschool.ng | classnotes.ng | classbasic.com | prepclass.com.ng | edudelight.com")
     print(f"Output: content/{{subject}}/{{topic}}.md  +  cbt_questions.json")
     print()
+
+    # ── Full-site crawl mode ─────────────────────────────────────────────────
+    if args.crawl:
+        print("[CRAWL MODE] Full-site crawl of all lesson websites")
+        print(f"  Limit per site: {args.crawl_limit} articles")
+        print(f"  Subject filter: {args.subject or 'ALL'}")
+        run_full_crawl(
+            subject_filter=args.subject,
+            limit=args.crawl_limit,
+        )
+        if not args.questions_only:
+            print("\nDone crawling. Run `python3 scripts/build_lessons_data.py` to compile the app data.")
+            if args.lessons_only:
+                return
+        # Fall through to question scraping if not lessons_only
+        if not args.lessons_only:
+            # Continue to question phase below (skip lesson phase since crawl handled it)
+            args.questions_only = True
 
     # Discover additional subjects from websites
     if args.discover:

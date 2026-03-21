@@ -6,7 +6,12 @@
     "start": "expo start --port 5000",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:web": "expo export -p web",
+    "scrape": "python3 scripts/scrape_content.py",
+    "scrape:crawl": "python3 scripts/scrape_content.py --crawl",
+    "merge:notes": "python3 scripts/merge_notes.py",
+    "build:lessons": "python3 scripts/build_lessons_data.py"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.2.3",

@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: naija-academy
+    env: node
+    plan: free
+    buildCommand: npm install && npx expo export -p web
+    startCommand: npx -y serve dist --listen 10000 --single
+    envVars:
+      - key: CI
+        value: "1"
+      - key: EXPO_NO_DOTENV
+        value: "1"
+      - key: EXPO_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: EXPO_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+    autoDeploy: true
