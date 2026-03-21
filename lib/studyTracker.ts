@@ -34,6 +34,11 @@ async function getOrSet<T>(key: string, defaultVal: T): Promise<T> {
   try { return JSON.parse(val) as T; } catch { return defaultVal; }
 }
 
+/** Public – call on app startup so the streak increments each calendar day the user opens the app */
+export async function touchDailyStreak(): Promise<number> {
+  return updateStreak();
+}
+
 async function updateStreak(): Promise<number> {
   const today     = todayStr();
   const lastDate  = await AsyncStorage.getItem(KEYS.LAST_DATE);

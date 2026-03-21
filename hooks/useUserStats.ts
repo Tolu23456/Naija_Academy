@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getStudyStats, recordCBTScore, Activity } from '@/lib/studyTracker';
 import { supabase } from '@/lib/supabase';
@@ -10,19 +10,26 @@ export type UserStats = {
   topicsDone: number;
   avgScore: number;
   recentActivity: Activity[];
+  loading: boolean;
+  refetch: () => void;
 };
 
 export function useUserStats(): UserStats {
   const { user } = useAuth();
 
-  const [localStats, setLocalStats] = useState<Omit<UserStats, 'username' | 'email'>>({
+  const [localStats, setLocalStats] = useState<Omit<UserStats, 'username' | 'email' | 'loading' | 'refetch'>>({
     streak: 0,
     topicsDone: 0,
     avgScore: 0,
     recentActivity: [],
   });
+  const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const refetch = useCallback(() => setRefreshKey(k => k + 1), []);
 
   useEffect(() => {
+    setLoading(true);
     getStudyStats().then(stats => {
       setLocalStats({
         streak:         stats.streak,
@@ -30,8 +37,9 @@ export function useUserStats(): UserStats {
         avgScore:       stats.avgScore,
         recentActivity: stats.recentActivity,
       });
+      setLoading(false);
     });
-  }, [user]);
+  }, [user, refreshKey]);
 
   const meta     = user?.user_metadata ?? {};
   const username =
@@ -48,6 +56,8 @@ export function useUserStats(): UserStats {
     recentActivity: localStats.recentActivity.length > 0
       ? localStats.recentActivity
       : (meta.recent_activity ?? []),
+    loading,
+    refetch,
   };
 }
 
