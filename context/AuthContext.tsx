@@ -31,11 +31,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    supabase.auth.getSession().then(({ data }) => {
+    // Race the session fetch against a 4-second timeout so the app never hangs
+    const sessionPromise = supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setUser(data.session?.user ?? null);
       setLoading(false);
     });
+
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+    }, 4000);
+
+    sessionPromise.finally(() => clearTimeout(timeoutId));
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);

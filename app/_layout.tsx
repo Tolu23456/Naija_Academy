@@ -10,6 +10,8 @@ import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { isOnboardingDone } from '@/lib/onboarding';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
+export const unstable_settings = { initialRouteName: 'onboarding' };
+
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
