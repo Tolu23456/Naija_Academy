@@ -36,5 +36,5 @@ publicDir = "."
 run = ["npx", "expo", "start", "--web", "--port", "5000", "--no-dev"]
 
 [[ports]]
-localPort = 5000
+localPort = 5001
 externalPort = 80
