@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { View, Animated, StyleSheet, ViewStyle } from 'react-native';
+import { View, Animated, Platform, StyleSheet, ViewStyle } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
+
+const nativeDriver = Platform.OS !== 'web';
 
 type Props = {
   width?: number | string;
@@ -16,8 +18,8 @@ export function SkeletonBox({ width = '100%', height = 16, radius = 8, style }: 
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(anim, { toValue: 1, duration: 700, useNativeDriver: true }),
-        Animated.timing(anim, { toValue: 0.4, duration: 700, useNativeDriver: true }),
+        Animated.timing(anim, { toValue: 1, duration: 700, useNativeDriver: nativeDriver }),
+        Animated.timing(anim, { toValue: 0.4, duration: 700, useNativeDriver: nativeDriver }),
       ])
     );
     loop.start();

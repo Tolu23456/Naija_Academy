@@ -7,6 +7,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useUserStats } from '@/hooks/useUserStats';
 import { JAMB_STUDY_PATH, getSubject } from '@/lib/subjectsData';
 import { getTopicSlugs } from '@/lib/lessonsData';
+import { FadeInView } from '@/components/FadeInView';
 
 function daysUntilJamb(): number {
   const today = new Date();
@@ -54,7 +55,7 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
     >
       {/* Header */}
-      <View style={styles.header}>
+      <FadeInView style={styles.header} duration={400} delay={0} slideFrom="top" distance={16}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.greeting, { color: colors.text }]} numberOfLines={1}>{greeting}</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Track your exam readiness</Text>
@@ -64,10 +65,10 @@ export default function HomeScreen() {
             {username.charAt(0).toUpperCase()}
           </Text>
         </View>
-      </View>
+      </FadeInView>
 
       {/* Stats Row */}
-      <View style={styles.statsRow}>
+      <FadeInView style={styles.statsRow} duration={400} delay={80} slideFrom="bottom" distance={20}>
         {stats.map((s, i) => (
           <View key={i} style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
             <View style={[styles.statIcon, { backgroundColor: s.bg }]}>
@@ -80,88 +81,94 @@ export default function HomeScreen() {
             <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{s.label}</Text>
           </View>
         ))}
-      </View>
+      </FadeInView>
 
       {/* JAMB Countdown */}
-      <View style={[styles.countdownCard, { backgroundColor: colors.accentDim, borderColor: colors.accent }]}>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.countdownLabel, { color: colors.accent }]}>JAMB UTME 2026</Text>
-          <Text style={[styles.countdownDays, { color: colors.text }]}>{jambDays} Days</Text>
-          <Text style={[styles.statLabel, { color: colors.textSecondary, marginTop: 2 }]}>until your exam</Text>
+      <FadeInView duration={400} delay={160} slideFrom="bottom" distance={20}>
+        <View style={[styles.countdownCard, { backgroundColor: colors.accentDim, borderColor: colors.accent }]}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.countdownLabel, { color: colors.accent }]}>JAMB UTME 2026</Text>
+            <Text style={[styles.countdownDays, { color: colors.text }]}>{jambDays} Days</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary, marginTop: 2 }]}>until your exam</Text>
+          </View>
+          <TouchableOpacity
+            style={[styles.ctaBtn, { backgroundColor: colors.accent }]}
+            onPress={() => router.push('/exams' as any)}
+          >
+            <Ionicons name="play" size={14} color="#000" />
+            <Text style={styles.ctaBtnText}>Daily Mock</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={[styles.ctaBtn, { backgroundColor: colors.accent }]}
-          onPress={() => router.push('/exams' as any)}
-        >
-          <Ionicons name="play" size={14} color="#000" />
-          <Text style={styles.ctaBtnText}>Daily Mock</Text>
-        </TouchableOpacity>
-      </View>
+      </FadeInView>
 
       {/* Recent Activity */}
-      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Activity</Text>
-        {recentActivity.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="time-outline" size={32} color={colors.textSecondary} />
-            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-              No activity yet. Start a mock test or study a topic!
-            </Text>
-          </View>
-        ) : (
-          recentActivity.map((a, i) => (
-            <View key={i} style={[styles.activityRow, { borderBottomColor: colors.surfaceBorder }]}>
-              <Ionicons name={a.icon as any} size={18} color={colors[a.colorKey]} />
-              <Text style={[styles.activityText, { color: colors.textSecondary }]}>{a.text}</Text>
+      <FadeInView duration={400} delay={240} slideFrom="bottom" distance={20}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Activity</Text>
+          {recentActivity.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Ionicons name="time-outline" size={32} color={colors.textSecondary} />
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                No activity yet. Start a mock test or study a topic!
+              </Text>
             </View>
-          ))
-        )}
-      </View>
+          ) : (
+            recentActivity.map((a, i) => (
+              <View key={i} style={[styles.activityRow, { borderBottomColor: colors.surfaceBorder }]}>
+                <Ionicons name={a.icon as any} size={18} color={colors[a.colorKey]} />
+                <Text style={[styles.activityText, { color: colors.textSecondary }]}>{a.text}</Text>
+              </View>
+            ))
+          )}
+        </View>
+      </FadeInView>
 
       {/* Recommended Study Path */}
-      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Recommended Study Path</Text>
-        <Text style={[styles.statLabel, { color: colors.textSecondary, marginBottom: Spacing.md }]}>
-          {topicsDone === 0
-            ? 'Start here — great topics to kick off your JAMB prep'
-            : 'Based on JAMB syllabus priorities'}
-        </Text>
-        {studyPath.map((item, i) => (
-          <TouchableOpacity
-            key={i}
-            style={styles.topicRow}
-            onPress={() =>
-              router.push({
-                pathname: '/lesson',
-                params: {
-                  subject: item.subject,
-                  topic: item.topic.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-                },
-              })
-            }
-          >
-            <View style={[
-              styles.topicNum,
-              {
-                backgroundColor: i < topicsDone ? colors.accentDim : colors.surface,
-                borderColor: colors.surfaceBorder,
-                borderWidth: 1,
-              },
-            ]}>
-              {i < topicsDone
-                ? <Ionicons name="checkmark" size={14} color={colors.accent} />
-                : <Text style={[styles.topicNumText, { color: colors.textSecondary }]}>{i + 1}</Text>
+      <FadeInView duration={400} delay={320} slideFrom="bottom" distance={20}>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Recommended Study Path</Text>
+          <Text style={[styles.statLabel, { color: colors.textSecondary, marginBottom: Spacing.md }]}>
+            {topicsDone === 0
+              ? 'Start here — great topics to kick off your JAMB prep'
+              : 'Based on JAMB syllabus priorities'}
+          </Text>
+          {studyPath.map((item, i) => (
+            <TouchableOpacity
+              key={i}
+              style={styles.topicRow}
+              onPress={() =>
+                router.push({
+                  pathname: '/lesson',
+                  params: {
+                    subject: item.subject,
+                    topic: item.topic.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                  },
+                })
               }
-            </View>
-            <Text style={[styles.topicText, { color: i < topicsDone ? colors.textSecondary : colors.text }]}>
-              {item.label}
-            </Text>
-            {item.hasNote && (
-              <Ionicons name="book-outline" size={14} color={colors.accent} />
-            )}
-          </TouchableOpacity>
-        ))}
-      </View>
+            >
+              <View style={[
+                styles.topicNum,
+                {
+                  backgroundColor: i < topicsDone ? colors.accentDim : colors.surface,
+                  borderColor: colors.surfaceBorder,
+                  borderWidth: 1,
+                },
+              ]}>
+                {i < topicsDone
+                  ? <Ionicons name="checkmark" size={14} color={colors.accent} />
+                  : <Text style={[styles.topicNumText, { color: colors.textSecondary }]}>{i + 1}</Text>
+                }
+              </View>
+              <Text style={[styles.topicText, { color: i < topicsDone ? colors.textSecondary : colors.text }]}>
+                {item.label}
+              </Text>
+              {item.hasNote && (
+                <Ionicons name="book-outline" size={14} color={colors.accent} />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+      </FadeInView>
     </ScrollView>
   );
 }

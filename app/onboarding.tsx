@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { useTheme } from '@/context/ThemeContext';
 import { markOnboardingDone, saveAppMode } from '@/lib/onboarding';
+import { FadeInView } from '@/components/FadeInView';
 
 const slides = [
   {
@@ -88,7 +89,7 @@ export default function OnboardingScreen() {
       )}
 
       {slide.type === 'mode' ? (
-        <View style={styles.modeContainer}>
+        <FadeInView key={`mode-${step}`} style={styles.modeContainer} duration={350} slideFrom="bottom" distance={30}>
           <View style={[styles.iconRing, { backgroundColor: dim, borderColor: accent }]}>
             <View style={[styles.iconInner, { backgroundColor: accent }]}>
               <Ionicons name="options" size={52} color="#fff" />
@@ -151,10 +152,10 @@ export default function OnboardingScreen() {
               )}
             </TouchableOpacity>
           </View>
-        </View>
+        </FadeInView>
       ) : (
         <>
-          <View style={styles.illustrationArea}>
+          <FadeInView key={`icon-${step}`} style={styles.illustrationArea} duration={400} slideFrom="bottom" distance={40}>
             <View style={[styles.iconRing, { backgroundColor: dim, borderColor: accent }]}>
               <View style={[styles.iconInner, { backgroundColor: accent }]}>
                 {slide.iconLib === 'Ionicons'
@@ -163,12 +164,12 @@ export default function OnboardingScreen() {
                 }
               </View>
             </View>
-          </View>
+          </FadeInView>
 
-          <View style={styles.textArea}>
+          <FadeInView key={`text-${step}`} style={styles.textArea} duration={400} delay={80} slideFrom="bottom" distance={20}>
             <Text style={[styles.title, { color: colors.text }]}>{slide.title}</Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{slide.subtitle}</Text>
-          </View>
+          </FadeInView>
         </>
       )}
 
