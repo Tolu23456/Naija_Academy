@@ -5,19 +5,13 @@ import { useRouter } from 'expo-router';
 import { Fonts, Spacing, Radius } from '@/constants/theme';
 import { useTheme } from '@/context/ThemeContext';
 import { useUserStats } from '@/hooks/useUserStats';
-
-const STUDY_PATH = [
-  'Calculus — Differentiation',
-  'Physics — Waves & Optics',
-  'Chemistry — Electrolysis',
-  'English — Lexis & Structure',
-  'Mathematics — Matrices',
-  'Physics — Electricity',
-];
+import { JAMB_STUDY_PATH, getSubject } from '@/lib/subjectsData';
+import { getTopicSlugs } from '@/lib/lessonsData';
 
 function daysUntilJamb(): number {
   const today = new Date();
-  const jamb = new Date(today.getFullYear(), 2, 28); // March 28
+  // JAMB UTME typically held in April each year
+  const jamb  = new Date(today.getFullYear(), 3, 15);
   if (jamb < today) jamb.setFullYear(today.getFullYear() + 1);
   return Math.ceil((jamb.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
@@ -25,22 +19,33 @@ function daysUntilJamb(): number {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { colors } = useTheme();
+  const { colors }                                              = useTheme();
   const { username, streak, topicsDone, avgScore, recentActivity } = useUserStats();
-  const topPad = Platform.OS === 'web' ? 67 : insets.top;
+  const topPad    = Platform.OS === 'web' ? 67 : insets.top;
   const bottomPad = Platform.OS === 'web' ? 34 : 0;
 
   const readinessPct = avgScore > 0 ? `${Math.round(avgScore)}%` : '0%';
-  const streakLabel = streak === 1 ? '1 Day' : `${streak} Days`;
+  const streakLabel  = streak === 1 ? '1 Day' : `${streak} Days`;
+  const jambDays     = daysUntilJamb();
+  const greeting     = streak > 0 ? `Welcome back, ${username}!` : `Welcome, ${username}!`;
 
   const stats = [
-    { icon: 'flame', iconLib: 'Ionicons', color: colors.orange, bg: colors.orangeDim, value: streakLabel, label: 'Study Streak' },
-    { icon: 'shield-checkmark', iconLib: 'Ionicons', color: colors.accent, bg: colors.accentDim, value: readinessPct, label: 'JAMB Ready' },
-    { icon: 'book-open-variant', iconLib: 'MaterialCommunityIcons', color: colors.blue, bg: colors.blueDim, value: String(topicsDone), label: 'Topics Done' },
+    { icon: 'flame',             iconLib: 'Ionicons',                color: colors.orange, bg: colors.orangeDim,  value: streakLabel,    label: 'Study Streak' },
+    { icon: 'shield-checkmark',  iconLib: 'Ionicons',                color: colors.accent, bg: colors.accentDim,  value: readinessPct,   label: 'JAMB Ready'   },
+    { icon: 'book-open-variant', iconLib: 'MaterialCommunityIcons',  color: colors.blue,   bg: colors.blueDim,    value: String(topicsDone), label: 'Topics Done' },
   ];
 
-  const jambDays = daysUntilJamb();
-  const greeting = streak > 0 ? `Welcome back, ${username}!` : `Welcome, ${username}!`;
+  // Build study path: use JAMB_STUDY_PATH if user just started, otherwise real subjects with notes
+  const studyPath = JAMB_STUDY_PATH.map(item => {
+    const subject = getSubject(item.subject);
+    const slugs   = getTopicSlugs(item.subject);
+    return {
+      label:   `${subject?.name ?? item.subject} — ${item.topic}`,
+      subject: item.subject,
+      topic:   item.topic,
+      hasNote: slugs.includes(item.topic.toLowerCase().replace(/[^a-z0-9]+/g, '-')),
+    };
+  });
 
   return (
     <ScrollView
@@ -77,7 +82,7 @@ export default function HomeScreen() {
         ))}
       </View>
 
-      {/* Countdown */}
+      {/* JAMB Countdown */}
       <View style={[styles.countdownCard, { backgroundColor: colors.accentDim, borderColor: colors.accent }]}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.countdownLabel, { color: colors.accent }]}>JAMB UTME 2026</Text>
@@ -113,22 +118,48 @@ export default function HomeScreen() {
         )}
       </View>
 
-      {/* Study Path */}
+      {/* Recommended Study Path */}
       <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Recommended Study Path</Text>
         <Text style={[styles.statLabel, { color: colors.textSecondary, marginBottom: Spacing.md }]}>
-          {topicsDone === 0 ? 'Start here — great topics to kick off your prep' : 'Based on your recent performance'}
+          {topicsDone === 0
+            ? 'Start here — great topics to kick off your JAMB prep'
+            : 'Based on JAMB syllabus priorities'}
         </Text>
-        {STUDY_PATH.map((topic, i) => (
-          <View key={i} style={styles.topicRow}>
-            <View style={[styles.topicNum, { backgroundColor: i < topicsDone ? colors.accentDim : colors.surface, borderColor: colors.surfaceBorder, borderWidth: 1 }]}>
+        {studyPath.map((item, i) => (
+          <TouchableOpacity
+            key={i}
+            style={styles.topicRow}
+            onPress={() =>
+              router.push({
+                pathname: '/lesson',
+                params: {
+                  subject: item.subject,
+                  topic: item.topic.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                },
+              })
+            }
+          >
+            <View style={[
+              styles.topicNum,
+              {
+                backgroundColor: i < topicsDone ? colors.accentDim : colors.surface,
+                borderColor: colors.surfaceBorder,
+                borderWidth: 1,
+              },
+            ]}>
               {i < topicsDone
                 ? <Ionicons name="checkmark" size={14} color={colors.accent} />
                 : <Text style={[styles.topicNumText, { color: colors.textSecondary }]}>{i + 1}</Text>
               }
             </View>
-            <Text style={[styles.topicText, { color: i < topicsDone ? colors.textSecondary : colors.text }]}>{topic}</Text>
-          </View>
+            <Text style={[styles.topicText, { color: i < topicsDone ? colors.textSecondary : colors.text }]}>
+              {item.label}
+            </Text>
+            {item.hasNote && (
+              <Ionicons name="book-outline" size={14} color={colors.accent} />
+            )}
+          </TouchableOpacity>
         ))}
       </View>
     </ScrollView>
@@ -136,31 +167,31 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: { paddingHorizontal: Spacing.md },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg },
-  greeting: { fontSize: 22, fontFamily: Fonts.bold },
-  subtitle: { fontSize: 14, fontFamily: Fonts.regular, marginTop: 2 },
-  avatarBg: { width: 44, height: 44, borderRadius: Radius.full, justifyContent: 'center', alignItems: 'center', marginLeft: Spacing.sm },
-  avatarInitial: { fontSize: 20, fontFamily: Fonts.bold },
-  statsRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
-  statCard: { flex: 1, alignItems: 'center', padding: Spacing.md, borderRadius: Radius.md, borderWidth: 1, gap: Spacing.xs },
-  statIcon: { width: 42, height: 42, borderRadius: Radius.md, justifyContent: 'center', alignItems: 'center' },
-  statValue: { fontSize: 16, fontFamily: Fonts.bold },
-  statLabel: { fontSize: 11, fontFamily: Fonts.regular, textAlign: 'center' },
-  countdownCard: { flexDirection: 'row', alignItems: 'center', borderRadius: Radius.lg, borderWidth: 1, padding: Spacing.md, marginBottom: Spacing.md },
+  container:      { flex: 1 },
+  content:        { paddingHorizontal: Spacing.md },
+  header:         { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg },
+  greeting:       { fontSize: 22, fontFamily: Fonts.bold },
+  subtitle:       { fontSize: 14, fontFamily: Fonts.regular, marginTop: 2 },
+  avatarBg:       { width: 44, height: 44, borderRadius: Radius.full, justifyContent: 'center', alignItems: 'center', marginLeft: Spacing.sm },
+  avatarInitial:  { fontSize: 20, fontFamily: Fonts.bold },
+  statsRow:       { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
+  statCard:       { flex: 1, alignItems: 'center', padding: Spacing.md, borderRadius: Radius.md, borderWidth: 1, gap: Spacing.xs },
+  statIcon:       { width: 42, height: 42, borderRadius: Radius.md, justifyContent: 'center', alignItems: 'center' },
+  statValue:      { fontSize: 16, fontFamily: Fonts.bold },
+  statLabel:      { fontSize: 11, fontFamily: Fonts.regular, textAlign: 'center' },
+  countdownCard:  { flexDirection: 'row', alignItems: 'center', borderRadius: Radius.lg, borderWidth: 1, padding: Spacing.md, marginBottom: Spacing.md },
   countdownLabel: { fontSize: 12, fontFamily: Fonts.medium, marginBottom: 2 },
-  countdownDays: { fontSize: 32, fontFamily: Fonts.bold },
-  ctaBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: Radius.full },
-  ctaBtnText: { fontSize: 13, fontFamily: Fonts.semiBold, color: '#000' },
-  card: { borderRadius: Radius.lg, borderWidth: 1, padding: Spacing.md, marginBottom: Spacing.md },
-  sectionTitle: { fontSize: 18, fontFamily: Fonts.semiBold, marginBottom: Spacing.md },
-  emptyState: { alignItems: 'center', paddingVertical: Spacing.lg, gap: Spacing.sm },
-  emptyText: { fontSize: 13, fontFamily: Fonts.regular, textAlign: 'center', lineHeight: 18 },
-  activityRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingVertical: Spacing.sm, borderBottomWidth: 1 },
-  activityText: { fontSize: 14, fontFamily: Fonts.regular, flex: 1 },
-  topicRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.sm },
-  topicNum: { width: 28, height: 28, borderRadius: Radius.full, justifyContent: 'center', alignItems: 'center' },
-  topicNumText: { fontSize: 12, fontFamily: Fonts.bold },
-  topicText: { fontSize: 14, fontFamily: Fonts.medium, flex: 1 },
+  countdownDays:  { fontSize: 32, fontFamily: Fonts.bold },
+  ctaBtn:         { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: Radius.full },
+  ctaBtnText:     { fontSize: 13, fontFamily: Fonts.semiBold, color: '#000' },
+  card:           { borderRadius: Radius.lg, borderWidth: 1, padding: Spacing.md, marginBottom: Spacing.md },
+  sectionTitle:   { fontSize: 18, fontFamily: Fonts.semiBold, marginBottom: Spacing.md },
+  emptyState:     { alignItems: 'center', paddingVertical: Spacing.lg, gap: Spacing.sm },
+  emptyText:      { fontSize: 13, fontFamily: Fonts.regular, textAlign: 'center', lineHeight: 18 },
+  activityRow:    { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingVertical: Spacing.sm, borderBottomWidth: 1 },
+  activityText:   { fontSize: 14, fontFamily: Fonts.regular, flex: 1 },
+  topicRow:       { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.sm },
+  topicNum:       { width: 28, height: 28, borderRadius: Radius.full, justifyContent: 'center', alignItems: 'center' },
+  topicNumText:   { fontSize: 12, fontFamily: Fonts.bold },
+  topicText:      { fontSize: 14, fontFamily: Fonts.medium, flex: 1 },
 });
