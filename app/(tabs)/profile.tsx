@@ -1,6 +1,6 @@
 import {
   ScrollView, View, Text, StyleSheet, TouchableOpacity, Switch,
-  Platform, Modal, TextInput, Alert, Pressable, FlatList,
+  Platform, Modal, Alert, Pressable,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,7 +11,6 @@ import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { useUserStats } from '@/hooks/useUserStats';
 import { useRouter } from 'expo-router';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import * as Notifications from 'expo-notifications';
 
 Notifications.setNotificationHandler({
@@ -49,16 +48,10 @@ export default function ProfileScreen() {
   const bottomPad = Platform.OS === 'web' ? 34 : 0;
 
   const [prefs, setPrefs] = useState<Prefs>(DEFAULT_PREFS);
-  const [savingPrefs, setSavingPrefs] = useState(false);
+  const [, setSavingPrefs] = useState(false);
 
   const [durationModal, setDurationModal] = useState(false);
   const [scoreModal, setScoreModal] = useState(false);
-  const [editProfileModal, setEditProfileModal] = useState(false);
-  const [helpModal, setHelpModal] = useState(false);
-  const [aboutModal, setAboutModal] = useState(false);
-
-  const [newUsername, setNewUsername] = useState('');
-  const [savingProfile, setSavingProfile] = useState(false);
 
   const isOAuthUser = !!user?.app_metadata?.provider && user.app_metadata.provider !== 'email';
   const providerLabel = isOAuthUser
@@ -125,28 +118,6 @@ export default function ProfileScreen() {
   const handleSignOut = async () => {
     await signOut();
     router.replace('/auth');
-  };
-
-  const handleSaveProfile = async () => {
-    if (!newUsername.trim()) return;
-    setSavingProfile(true);
-    try {
-      if (isSupabaseConfigured) {
-        const { error } = await supabase.auth.updateUser({
-          data: { username: newUsername.trim() },
-        });
-        if (error) {
-          Alert.alert('Error', error.message);
-          return;
-        }
-      }
-      Alert.alert('Saved', 'Your display name has been updated.');
-      setEditProfileModal(false);
-    } catch (e: any) {
-      Alert.alert('Error', e?.message ?? 'Something went wrong.');
-    } finally {
-      setSavingProfile(false);
-    }
   };
 
   return (
@@ -256,7 +227,7 @@ export default function ProfileScreen() {
       <View style={[styles.settingsGroup, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
         <TouchableOpacity
           style={[styles.settingRow, { borderBottomColor: colors.surfaceBorder, borderBottomWidth: 1 }]}
-          onPress={() => { setNewUsername(username); setEditProfileModal(true); }}
+          onPress={() => router.push('/edit-profile')}
           activeOpacity={0.7}
         >
           <View style={[styles.settingIcon, { backgroundColor: colors.accentDim }]}>
@@ -268,7 +239,7 @@ export default function ProfileScreen() {
 
         <TouchableOpacity
           style={[styles.settingRow, { borderBottomColor: colors.surfaceBorder, borderBottomWidth: 1 }]}
-          onPress={() => setHelpModal(true)}
+          onPress={() => router.push('/help')}
           activeOpacity={0.7}
         >
           <View style={[styles.settingIcon, { backgroundColor: colors.accentDim }]}>
@@ -278,7 +249,7 @@ export default function ProfileScreen() {
           <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.settingRow} onPress={() => setAboutModal(true)} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.settingRow} onPress={() => router.push('/about')} activeOpacity={0.7}>
           <View style={[styles.settingIcon, { backgroundColor: colors.accentDim }]}>
             <Ionicons name="information-circle-outline" size={18} color={colors.accent} />
           </View>
@@ -342,116 +313,6 @@ export default function ProfileScreen() {
           </Pressable>
         </Pressable>
       </Modal>
-
-      {/* ── Edit Profile Modal ── */}
-      <Modal visible={editProfileModal} transparent animationType="fade" onRequestClose={() => setEditProfileModal(false)}>
-        <Pressable style={styles.overlay} onPress={() => setEditProfileModal(false)}>
-          <Pressable style={[styles.sheet, { backgroundColor: colors.surface }]} onPress={() => {}}>
-            <Text style={[styles.sheetTitle, { color: colors.text }]}>Edit Profile</Text>
-            <Text style={[styles.sheetSub, { color: colors.textSecondary }]}>Update your display name</Text>
-            <View style={[styles.inputWrap, { borderColor: colors.surfaceBorder, backgroundColor: colors.background }]}>
-              <Ionicons name="person-outline" size={16} color={colors.textSecondary} style={{ marginRight: 8 }} />
-              <TextInput
-                value={newUsername}
-                onChangeText={setNewUsername}
-                placeholder="Display name"
-                placeholderTextColor={colors.textSecondary}
-                style={[styles.input, { color: colors.text }]}
-                autoCapitalize="words"
-                returnKeyType="done"
-                onSubmitEditing={handleSaveProfile}
-              />
-            </View>
-            {!isSupabaseConfigured && (
-              <Text style={[styles.guestNote, { color: colors.textSecondary }]}>
-                Connect Supabase to persist changes across devices.
-              </Text>
-            )}
-            <View style={styles.sheetActions}>
-              <TouchableOpacity
-                style={[styles.sheetBtn, { borderColor: colors.surfaceBorder }]}
-                onPress={() => setEditProfileModal(false)}
-              >
-                <Text style={[styles.sheetBtnText, { color: colors.textSecondary }]}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.sheetBtn, { backgroundColor: colors.accent, borderColor: colors.accent }]}
-                onPress={handleSaveProfile}
-                disabled={savingProfile || !newUsername.trim()}
-              >
-                <Text style={[styles.sheetBtnText, { color: '#fff' }]}>{savingProfile ? 'Saving…' : 'Save'}</Text>
-              </TouchableOpacity>
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
-
-      {/* ── Help & Support Modal ── */}
-      <Modal visible={helpModal} transparent animationType="fade" onRequestClose={() => setHelpModal(false)}>
-        <Pressable style={styles.overlay} onPress={() => setHelpModal(false)}>
-          <Pressable style={[styles.sheet, { backgroundColor: colors.surface }]} onPress={() => {}}>
-            <Text style={[styles.sheetTitle, { color: colors.text }]}>Help & Support</Text>
-            {[
-              { icon: 'mail-outline', label: 'Email Us', value: 'support@naijaacademy.app' },
-              { icon: 'chatbubble-ellipses-outline', label: 'WhatsApp Community', value: 'Join our study group' },
-              { icon: 'book-outline', label: 'Study Tips', value: 'Read our exam prep guide' },
-              { icon: 'bug-outline', label: 'Report a Bug', value: 'Help us improve the app' },
-            ].map((item, i) => (
-              <View key={i} style={[styles.helpRow, { borderBottomColor: colors.surfaceBorder, borderBottomWidth: i < 3 ? 1 : 0 }]}>
-                <View style={[styles.settingIcon, { backgroundColor: colors.accentDim }]}>
-                  <Ionicons name={item.icon as any} size={18} color={colors.accent} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.helpLabel, { color: colors.text }]}>{item.label}</Text>
-                  <Text style={[styles.helpValue, { color: colors.textSecondary }]}>{item.value}</Text>
-                </View>
-              </View>
-            ))}
-            <TouchableOpacity
-              style={[styles.sheetCloseBtn, { backgroundColor: colors.accentDim, borderColor: colors.accent }]}
-              onPress={() => setHelpModal(false)}
-            >
-              <Text style={[styles.sheetCloseBtnText, { color: colors.accent }]}>Close</Text>
-            </TouchableOpacity>
-          </Pressable>
-        </Pressable>
-      </Modal>
-
-      {/* ── About Modal ── */}
-      <Modal visible={aboutModal} transparent animationType="fade" onRequestClose={() => setAboutModal(false)}>
-        <Pressable style={styles.overlay} onPress={() => setAboutModal(false)}>
-          <Pressable style={[styles.sheet, { backgroundColor: colors.surface }]} onPress={() => {}}>
-            <View style={{ alignItems: 'center', marginBottom: Spacing.md }}>
-              <View style={[styles.aboutLogo, { backgroundColor: colors.accentDim, borderColor: colors.accent }]}>
-                <Ionicons name="school" size={32} color={colors.accent} />
-              </View>
-              <Text style={[styles.sheetTitle, { color: colors.text, marginTop: Spacing.sm }]}>NaijaAcademy</Text>
-              <Text style={[styles.aboutVersion, { color: colors.textSecondary }]}>Version 1.0.0</Text>
-            </View>
-            <Text style={[styles.aboutDesc, { color: colors.textSecondary }]}>
-              NaijaAcademy is a comprehensive study platform built to help Nigerian secondary school students excel in JAMB UTME, WAEC, and NECO examinations.
-            </Text>
-            <View style={[styles.aboutStats, { borderColor: colors.surfaceBorder }]}>
-              {[
-                { label: 'Subjects', value: '17+' },
-                { label: 'Lessons', value: '200+' },
-                { label: 'Questions', value: '2000+' },
-              ].map((s, i) => (
-                <View key={i} style={[styles.aboutStatItem, i < 2 && { borderRightWidth: 1, borderRightColor: colors.surfaceBorder }]}>
-                  <Text style={[styles.statValue, { color: colors.accent }]}>{s.value}</Text>
-                  <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{s.label}</Text>
-                </View>
-              ))}
-            </View>
-            <TouchableOpacity
-              style={[styles.sheetCloseBtn, { backgroundColor: colors.accentDim, borderColor: colors.accent }]}
-              onPress={() => setAboutModal(false)}
-            >
-              <Text style={[styles.sheetCloseBtnText, { color: colors.accent }]}>Close</Text>
-            </TouchableOpacity>
-          </Pressable>
-        </Pressable>
-      </Modal>
     </ScrollView>
   );
 }
@@ -490,20 +351,4 @@ const styles = StyleSheet.create({
   sheetSub: { fontSize: 13, fontFamily: Fonts.regular, marginBottom: Spacing.sm },
   sheetOption: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: Spacing.md, borderRadius: Radius.md, borderWidth: 1, marginBottom: 6 },
   sheetOptionText: { fontSize: 15, fontFamily: Fonts.medium },
-  sheetActions: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm },
-  sheetBtn: { flex: 1, padding: Spacing.md, borderRadius: Radius.md, borderWidth: 1, alignItems: 'center' },
-  sheetBtnText: { fontSize: 15, fontFamily: Fonts.semiBold },
-  inputWrap: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: Radius.md, paddingHorizontal: Spacing.md, paddingVertical: Platform.OS === 'web' ? Spacing.sm : 0, marginBottom: 4 },
-  input: { flex: 1, fontSize: 15, fontFamily: Fonts.regular, paddingVertical: Spacing.sm },
-  guestNote: { fontSize: 12, fontFamily: Fonts.regular, marginBottom: 4 },
-  helpRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: Spacing.md },
-  helpLabel: { fontSize: 14, fontFamily: Fonts.medium },
-  helpValue: { fontSize: 12, fontFamily: Fonts.regular, marginTop: 2 },
-  sheetCloseBtn: { marginTop: Spacing.sm, padding: Spacing.md, borderRadius: Radius.md, borderWidth: 1, alignItems: 'center' },
-  sheetCloseBtnText: { fontSize: 15, fontFamily: Fonts.semiBold },
-  aboutLogo: { width: 72, height: 72, borderRadius: 36, justifyContent: 'center', alignItems: 'center', borderWidth: 2 },
-  aboutVersion: { fontSize: 13, fontFamily: Fonts.regular, marginTop: 4 },
-  aboutDesc: { fontSize: 14, fontFamily: Fonts.regular, lineHeight: 22, marginBottom: Spacing.md, textAlign: 'center' },
-  aboutStats: { flexDirection: 'row', borderRadius: Radius.lg, borderWidth: 1, marginBottom: Spacing.md, overflow: 'hidden' },
-  aboutStatItem: { flex: 1, alignItems: 'center', paddingVertical: Spacing.md },
 });

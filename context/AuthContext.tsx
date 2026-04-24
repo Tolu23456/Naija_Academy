@@ -31,7 +31,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Race the session fetch against a 4-second timeout so the app never hangs
+    // Race the session fetch against an 8-second timeout so the app never
+    // hangs even on slow mobile networks.
     const sessionPromise = supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setUser(data.session?.user ?? null);
@@ -40,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const timeoutId = setTimeout(() => {
       setLoading(false);
-    }, 4000);
+    }, 8000);
 
     sessionPromise.finally(() => clearTimeout(timeoutId));
 

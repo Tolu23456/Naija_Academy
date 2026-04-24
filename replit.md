@@ -117,9 +117,9 @@ The profile page now has fully functional:
 - **Dark Mode toggle** — applied app-wide
 - **Session Duration** — picker modal, saves to AsyncStorage
 - **Target Score** — picker modal, saves to AsyncStorage
-- **Edit Profile** — modal to update display name via Supabase
-- **Help & Support** — modal with support contacts
-- **About NaijaAcademy** — modal with app info and stats
+- **Edit Profile** — full page (`app/edit-profile.tsx`), updates display name via Supabase
+- **Help & Support** — full page (`app/help.tsx`) with contact options, resources, and FAQ
+- **About NaijaAcademy** — full page (`app/about.tsx`) with app info, stats, features, and links
 
 ## Dynamic Content (No-Rebuild Updates)
 
